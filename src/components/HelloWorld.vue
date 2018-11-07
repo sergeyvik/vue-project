@@ -1,9 +1,8 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <label>
       <input :value="num">
-    </label>
+
     <h2>Essential Links  dd2</h2>
 
   </div>
