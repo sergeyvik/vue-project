@@ -1,11 +1,6 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <label>
-      <input :value="num">
-    </label>
-    <h2>Essential Links  dd2</h2>
-
+  <div>
+    <h1>{{ msg }} {{ ver }}</h1>
   </div>
 </template>
 
@@ -14,8 +9,8 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App',
-      num: 78890768
+      msg: 'Welcome to Program List',
+      ver: require('../../package').version
     }
   }
 }

@@ -1,6 +1,8 @@
 <template>
-  <div id="app">
+  <div class="app">
     <img src="./assets/logo.png">
+    <router-link :to="'/'">home</router-link>
+    <router-link :to="'/list'">list</router-link>
     <router-view/>
   </div>
 </template>
@@ -12,7 +14,7 @@ export default {
 </script>
 
 <style>
-#app {
+.app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
