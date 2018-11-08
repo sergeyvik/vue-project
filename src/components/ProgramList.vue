@@ -1,6 +1,8 @@
 <template>
   <div>
     <h1>{{ msg }} {{ ver }}</h1>
+    <p>{{channels[50].channel_id}}</p>
+    <p>{{programs[50].program_name}}</p>
   </div>
 </template>
 
@@ -10,7 +12,9 @@ export default {
   data () {
     return {
       msg: 'Welcome to Program List',
-      ver: require('../../package').version
+      ver: require('../../package').version,
+      channels: require('../tvp_cha00.json'),
+      programs: require('../tvp_pro00.json')
     }
   }
 }
