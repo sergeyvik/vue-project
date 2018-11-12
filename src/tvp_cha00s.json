@@ -1,0 +1,222 @@
+[
+	{
+		"channel_id" : "1",
+		"channel_name" : "Первый канал",
+		"channel_icon" : "http://img.teleguide.info/channel/1.gif"
+	},
+	{
+		"channel_id" : "2",
+		"channel_name" : "Россия 1",
+		"channel_icon" : "http://img.teleguide.info/channel/2.gif"
+	},
+	{
+		"channel_id" : "3",
+		"channel_name" : "ТВЦ",
+		"channel_icon" : "http://img.teleguide.info/channel/3.gif"
+	},
+	{
+		"channel_id" : "4",
+		"channel_name" : "НТВ",
+		"channel_icon" : "http://img.teleguide.info/channel/4.gif"
+	},
+	{
+		"channel_id" : "5",
+		"channel_name" : "Россия Культура",
+		"channel_icon" : "http://img.teleguide.info/channel/5.gif"
+	},
+	{
+		"channel_id" : "101",
+		"channel_name" : "ТНТ",
+		"channel_icon" : "http://img.teleguide.info/channel/101.gif"
+	},
+	{
+		"channel_id" : "102",
+		"channel_name" : "Домашний",
+		"channel_icon" : "http://img.teleguide.info/channel/102.gif"
+	},
+	{
+		"channel_id" : "103",
+		"channel_name" : "РЕН ТВ",
+		"channel_icon" : "http://img.teleguide.info/channel/103.gif"
+	},
+	{
+		"channel_id" : "104",
+		"channel_name" : "СТС",
+		"channel_icon" : "http://img.teleguide.info/channel/104.gif"
+	},
+	{
+		"channel_id" : "105",
+		"channel_name" : "ТВ-3",
+		"channel_icon" : "http://img.teleguide.info/channel/105.gif"
+	},
+	{
+		"channel_id" : "106",
+		"channel_name" : "Москва-24",
+		"channel_icon" : "http://img.teleguide.info/channel/106.gif"
+	},
+	{
+		"channel_id" : "107",
+		"channel_name" : "MTV Россия",
+		"channel_icon" : "http://img.teleguide.info/channel/107.gif"
+	},
+	{
+		"channel_id" : "108",
+		"channel_name" : "Ю",
+		"channel_icon" : "http://img.teleguide.info/channel/108.gif"
+	},
+	{
+		"channel_id" : "172",
+		"channel_name" : "Ямал-Регион",
+		"channel_icon" : "undefined"
+	},
+	{
+		"channel_id" : "201",
+		"channel_name" : "Киносвидание",
+		"channel_icon" : "http://img.teleguide.info/channel/201.gif"
+	},
+	{
+		"channel_id" : "202",
+		"channel_name" : "Родное кино",
+		"channel_icon" : "http://img.teleguide.info/channel/202.gif"
+	},
+	{
+		"channel_id" : "203",
+		"channel_name" : "Кинопремьера",
+		"channel_icon" : "http://img.teleguide.info/channel/203.gif"
+	},
+	{
+		"channel_id" : "205",
+		"channel_name" : "Матч! Футбол 1",
+		"channel_icon" : "http://img.teleguide.info/channel/205.gif"
+	},
+	{
+		"channel_id" : "206",
+		"channel_name" : "Eurosport 1",
+		"channel_icon" : "http://img.teleguide.info/channel/206.gif"
+	},
+	{
+		"channel_id" : "208",
+		"channel_name" : "EuroNews",
+		"channel_icon" : "http://img.teleguide.info/channel/208.gif"
+	},
+	{
+		"channel_id" : "211",
+		"channel_name" : "Cartoon Network",
+		"channel_icon" : "http://img.teleguide.info/channel/211.gif"
+	},
+	{
+		"channel_id" : "214",
+		"channel_name" : "Animal Planet",
+		"channel_icon" : "http://img.teleguide.info/channel/214.gif"
+	},
+	{
+		"channel_id" : "216",
+		"channel_name" : "Детский мир",
+		"channel_icon" : "http://img.teleguide.info/channel/216.gif"
+	},
+	{
+		"channel_id" : "218",
+		"channel_name" : "Nickelodeon",
+		"channel_icon" : "http://img.teleguide.info/channel/218.gif"
+	},
+	{
+		"channel_id" : "219",
+		"channel_name" : "BBC World",
+		"channel_icon" : "http://img.teleguide.info/channel/219.gif"
+	},
+	{
+		"channel_id" : "220",
+		"channel_name" : "Bloomberg",
+		"channel_icon" : "http://img.teleguide.info/channel/220.gif"
+	},
+	{
+		"channel_id" : "221",
+		"channel_name" : "CNN International",
+		"channel_icon" : "http://img.teleguide.info/channel/221.gif"
+	},
+	{
+		"channel_id" : "222",
+		"channel_name" : "Спас ТВ",
+		"channel_icon" : "http://img.teleguide.info/channel/222.gif"
+	},
+	{
+		"channel_id" : "223",
+		"channel_name" : "Discovery World",
+		"channel_icon" : "http://img.teleguide.info/channel/223.gif"
+	},
+	{
+		"channel_id" : "224",
+		"channel_name" : "Discovery Science",
+		"channel_icon" : "http://img.teleguide.info/channel/224.gif"
+	},
+	{
+		"channel_id" : "226",
+		"channel_name" : "Discovery Channel",
+		"channel_icon" : "http://img.teleguide.info/channel/226.gif"
+	},
+	{
+		"channel_id" : "229",
+		"channel_name" : "Mezzo",
+		"channel_icon" : "http://img.teleguide.info/channel/229.gif"
+	},
+	{
+		"channel_id" : "230",
+		"channel_name" : "CBS Reality",
+		"channel_icon" : "http://img.teleguide.info/channel/230.gif"
+	},
+	{
+		"channel_id" : "231",
+		"channel_name" : "TV5",
+		"channel_icon" : "http://img.teleguide.info/channel/231.gif"
+	},
+	{
+		"channel_id" : "232",
+		"channel_name" : "VH1 European",
+		"channel_icon" : "http://img.teleguide.info/channel/232.gif"
+	},
+	{
+		"channel_id" : "233",
+		"channel_name" : "TCM",
+		"channel_icon" : "http://img.teleguide.info/channel/233.gif"
+	},
+	{
+		"channel_id" : "236",
+		"channel_name" : "Первый канал (Орбита 1 +8)",
+		"channel_icon" : "http://img.teleguide.info/channel/236.gif"
+	},
+	{
+		"channel_id" : "237",
+		"channel_name" : "Россия 1 (дубль 1)",
+		"channel_icon" : "http://img.teleguide.info/channel/237.gif"
+	},
+	{
+		"channel_id" : "242",
+		"channel_name" : "Первый канал (Орбита 2 +6)",
+		"channel_icon" : "http://img.teleguide.info/channel/242.gif"
+	},
+	{
+		"channel_id" : "243",
+		"channel_name" : "Первый канал (Орбита 3 +4)",
+		"channel_icon" : "http://img.teleguide.info/channel/243.gif"
+	},
+	{
+		"channel_id" : "244",
+		"channel_name" : "Первый канал (Орбита 4 +2)",
+		"channel_icon" : "http://img.teleguide.info/channel/244.gif"
+	},
+	{
+		"channel_id" : "245",
+		"channel_name" : "Россия 1 (дубль 2)",
+		"channel_icon" : "http://img.teleguide.info/channel/245.gif"
+	},
+	{
+		"channel_id" : "246",
+		"channel_name" : "Россия 1 (дубль 3)",
+		"channel_icon" : "http://img.teleguide.info/channel/246.gif"
+	},
+	{
+		"channel_id" : "247",
+		"channel_name" : "Россия 1 (дубль 4)",
+		"channel_icon" : "http://img.teleguide.info/channel/247.gif"
+	}
+]
