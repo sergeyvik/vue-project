@@ -1,15 +1,6 @@
 <template>
   <div>
-    <div class="d-flex flex-wrap">
-      <div class="card col-12 col-sm-6 col-md-3 b-col-lg-4 col-xl-2" v-for="channel in channels" :key="channel.channel_id">
-        <div>
-            <img :src="channel.channel_icon" alt="Значок телеканала отсутствует">
-        </div>
-        <div class="list" v-for="program in ProgramList(channel.channel_id)" :key="program.program_name">
-          <p>{{program.program_name}}</p> <p>{{program.program_category}}</p> <p>{{program.program_description}}</p>
-        </div>
-      </div>
-    </div>
+    {{channels[0]}}
   </div>
 </template>
 

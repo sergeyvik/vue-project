@@ -14,10 +14,11 @@
 <script>
 export default {
   name: 'FastView',
+  props: ['channels'],
   data () {
     return {
-      channels: require('../tvp_cha00s.json'),
-      programs: require('../tvp_pro00s.json')
+      channels1: require('../tvp_cha00s.json'),
+      programs1: require('../tvp_pro00s.json')
     }
   }
 }
