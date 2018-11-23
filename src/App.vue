@@ -1,7 +1,22 @@
 <template>
   <div class="app">
-    <div class="header"> {{channels[0].channel_name}} </div>
+    <div class="header">
+      <nav class="nav">
+        <!-- Brand/logo -->
+        <a class="navbar-brand" href="#">
+          <img src="../src/assets/pitivi.png" alt="logo" style="width:60px;">
+        </a>
+        <!-- Links -->
+        <router-link class="nav-link" :to="'/fast'">Сейчас в эфире</router-link>
+        <router-link class="nav-link" :to="'/list'">Программа ТВ</router-link>
+        <router-link class="nav-link" :to="'/programs'">Программа ТВ</router-link>
+        <router-link class="nav-link" :to="'/'">Пример изначальный</router-link>
+      </nav>
+    </div>
     <div class="menu">
+      <div class="date" v-for="(date, key) in dateList" :key="key">
+        {{date.day+'.'+date.month+' '+getDayName(date.name)}}
+      </div>
       <router-link class="btn btn-primary" tag="button" :to="'/fast'">Сейчас в эфире</router-link>
       <router-link class="btn btn-primary" tag="button" :to="'/list'">Программа ТВ</router-link>
       <router-link class="btn btn-primary" tag="button" :to="'/programs'">Программа ТВ</router-link>
@@ -14,17 +29,14 @@
           {{ option.text }}
         </option>
       </select> Режим сортировки: {{channelsSortType}}
-      <router-view :channels="sortedChannels"></router-view></div>
-    <div class="footer">sdfgsgfgs Неделя: {{dateList.length}} Counter: {{counter}}</div>
-      <div v-for="(program, key) in dateList"  :key="key">
-        {{program.month}}.{{program.day}}
-    </div>
+      <router-view :channels="sortedChannels" :now="now"></router-view></div>
+    <div class="footer">sdfgsgfgs</div>
   </div>
 </template>
 
 <script>
 import _ from 'lodash'
-import moment from 'moment'
+/* import moment from 'moment' */
 export default {
   name: 'App',
   data: function () {
@@ -42,7 +54,7 @@ export default {
       counter: 0,
       dateForSample: {},
       timeForSample: {start: 0, end: 84400000},
-      now: null
+      now: 1541321000000
     }
   },
   created: function () {
@@ -56,40 +68,59 @@ export default {
         }
       }
     }
-    this.now = date.valueOf()
+    /* this.now = date.valueOf() */
     let yyyymmdd = this.getDateYYYYMMDD(this.now).toString()
     this.dateForSample.year = Number(yyyymmdd.slice(0, 4))
     this.dateForSample.month = 1 + Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)))
     this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) < 10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)))
     date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
+    this.dateForSample.name = date.getDay()
     this.dateForSample.ms = date.valueOf()
   },
   methods: {
-    getWeek: function () {
-      let now = moment()
-      moment.locale('ru')
-      return now
-    },
-    sortedSampleChannels (dateForSample, timeForSample) {
+    sortedSampleChannels: function (dateForSample, timeForSample) {
       let date = new Date(dateForSample.year, dateForSample.month - 1, dateForSample.day)
+      date = new Date(2018, 10, 4)
       let result = []
       for (let channel of this.channels) {
         let data = {}
+        let programs = []
         for (let program of channel.programs) {
           if (((date.valueOf() + timeForSample.start) <= program.program_start) &&
             (date.valueOf() + timeForSample.end) >= program.program_start) {
-            data.programs.push(program)
+            programs.push(program)
           }
         }
-        if (data.programs.length > 0) {
+        if (programs.length > 0) {
           data.channel_id = channel.channel_id
           data.channel_icon = channel.channel_icon
           data.channel_name = channel.channel_name
+          data.programs = programs
           result.push(data)
         }
       }
       this.channelsSample = result
       return result
+    },
+    getDayName: function (num) {
+      switch (num) {
+        case 1:
+          return 'ПН'
+        case 2:
+          return 'ВТ'
+        case 3:
+          return 'СР'
+        case 4:
+          return 'ЧТ'
+        case 5:
+          return 'ПТ'
+        case 6:
+          return 'СБ'
+        case 0:
+          return 'ВС'
+        default:
+          return undefined
+      }
     },
     getDateYYYYMMDD: function (ms) {
       let result
@@ -107,26 +138,34 @@ export default {
       let date = new Date(ms)
       let temp = {}
       temp.year = date.getFullYear()
-      temp.month = Number(((date.getMonth() + 1) < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth() + 1))
-      temp.day = (date.getDate() < 10) ? ('0' + date.getDate()) : date.getDate()
+      temp.month = date.getMonth() + 1
+      temp.day = date.getDate()
+      temp.name = date.getDay()
       date = new Date(temp.year, temp.month - 1, temp.day)
       temp.ms = date.valueOf()
+      if (temp.month < 10) {
+        temp.month = '0' + temp.month
+      }
+      if (temp.day < 10) {
+        temp.day = '0' + temp.day
+      }
       this.dateList.push(temp)
     }
   },
   computed: {
     sortedChannels () {
+      let channels = this.sortedSampleChannels(this.dateForSample, this.timeForSample)
       switch (this.channelsSortType) {
         case 'by-name-up':
-          return _.orderBy(this.channels, ['channel_name'], ['asc'])
+          return _.orderBy(channels, ['channel_name'], ['asc'])
         case 'by-name-down':
-          return _.orderBy(this.channels, ['channel_name'], ['desc'])
+          return _.orderBy(channels, ['channel_name'], ['desc'])
         case 'by-id-up':
-          return _.orderBy(this.channels, ['channel_id'], ['asc'])
+          return _.orderBy(channels, ['channel_id'], ['asc'])
         case 'by-id-down':
-          return _.orderBy(this.channels, ['channel_id'], ['desc'])
+          return _.orderBy(channels, ['channel_id'], ['desc'])
         default:
-          return _.orderBy(this.channels, ['channel_id'], ['asc'])
+          return _.orderBy(channels, ['channel_id'], ['asc'])
       }
     }
   }
@@ -142,14 +181,21 @@ export default {
   padding: 5px;
 }
 .header {
-  background: chocolate;
-  padding: 20px;
-  text-align: center;
   margin: 5px 0px;
+}
+.nav {
   border-radius: 10px;
+  background: lightgoldenrodyellow;
+  align-items: center;
+}
+.date {
+  font-size: small;
+  displey: flex;
+  flex-wrap: wrap;
+
 }
 .footer {
-  background: brown;
+  background: lightgoldenrodyellow;
   padding: 20px;
   text-align: center;
   margin: 5px 0px;
@@ -165,4 +211,7 @@ export default {
   background: white;
   border-radius: 10px;
 }
+img {
+  margin: 10px;
+  }
 </style>
