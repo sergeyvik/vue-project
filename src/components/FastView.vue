@@ -2,12 +2,12 @@
   <div>
     <div class="list">
       <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in currentProgram" :key="channel.channel_id">
-        <div class="channel_header">
+        <div class="card_header">
           <div class="channel_ico">
             <img v-if="channel.channel_icon !== undefined" :src="channel.channel_icon" alt="Знак ТВ">
             <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
           </div>
-          <div class="channel_header2">
+          <div class="channel_header">
             <div class="channel_name">{{channel.channel_name}}</div>
             <div>{{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
             <div>{{channel.program_name}}</div>
@@ -64,32 +64,31 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   div {
-    border: 1px solid deepskyblue;
     font-family: Arial, Helvetica, sans-serif;
     font-size: small;
   }
   .list {
-    background: greenyellow;
     display: flex;
     flex-wrap: wrap;
   }
   .card {
-    background: khaki;
-    border: 1px dotted aqua;
     display: flex;
-    flex-direction: row;
   }
-  .channel_header {
+  .card_header {
     display: flex;
   }
   .channel_ico {
+  }
+  .channel_header {
     display: flex;
-    align-self: start;
+    flex-direction: column;
+    flex-grow: 1;
   }
   .channel_name {
     display: flex;
     font-size: small;
     font-weight: bold;
+    justify-content: center;
   }
 
 </style>

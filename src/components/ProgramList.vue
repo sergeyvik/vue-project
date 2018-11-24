@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="list">
-      <div class="channel col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in channels" :key="channel.channel_id">
+      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in channels" :key="channel.channel_id">
           <div class="channel_header">
             <div class="channel_ico"> <img :src="channel.channel_icon" alt="Значок телеканала отсутствует"></div>
             <div class="channel_name">{{channel.channel_name}}</div>
@@ -46,33 +46,30 @@ ul {
 div {
   font-family: Arial, Helvetica, sans-serif;
   font-size: small;
-  border: 1px solid deepskyblue;
 }
 .list {
   display: flex;
   flex-wrap: wrap;
 }
-.channel {
+.card {
   box-sizing: border-box;
   border-radius: 10px;
-  border: 1px solid red;
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
 }
 .channel_header {
   display: flex;
-  align-items: center;
 }
 .channel_ico {
-  display: flex;
-  align-self: start;
 }
 .channel_name {
   display: flex;
   font-size: small;
   font-weight: bold;
   align-self: center;
+  justify-content: center;
+  flex-grow: 1;
 }
 .channel_time {
   padding-right: 5px;
