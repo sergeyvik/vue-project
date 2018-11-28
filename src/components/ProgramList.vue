@@ -1,5 +1,20 @@
 <template>
   <div>
+    <div class="dateList">
+      <div class="date" v-for="(date, key) in dateList" :key="key">
+        <b-button :pressed="key === pressed" @click="changeDataInPL(key, dateList[key])" variant="primary" size="sm">
+          {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">{{'за '+timeForSample.name}}</b-badge>
+        </b-button>
+        <b-dropdown v-if="key===pressed" :pressed="true" right size="sm" variant="primary">
+          <b-dropdown-item @click="timeForSample=timeList[0]"><span>ночь  00.00-06.00</span></b-dropdown-item>
+          <b-dropdown-item @click="timeForSample=timeList[1]"><span>утро  06.00-12.00</span></b-dropdown-item>
+          <b-dropdown-item @click="timeForSample=timeList[2]"><span>день  12.00-18.00</span></b-dropdown-item>
+          <b-dropdown-item @click="timeForSample=timeList[3]"><span>вечер 18.00-24.00</span></b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+          <b-dropdown-item @click="timeForSample=timeList[4]"><span>сутки 00.00-24.00</span></b-dropdown-item>
+        </b-dropdown>
+      </div>
+    </div>
     <div class="list">
       <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in channels" :key="channel.channel_id">
           <div class="channel_header">
@@ -19,16 +34,39 @@
 
 export default {
   name: 'ProgramList',
-  props: ['channels'],
+  props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample'],
   data () {
     return {
     }
   },
   methods: {
+    getDayName: function (num) {
+      switch (num) {
+        case 1:
+          return 'ПН'
+        case 2:
+          return 'ВТ'
+        case 3:
+          return 'СР'
+        case 4:
+          return 'ЧТ'
+        case 5:
+          return 'ПТ'
+        case 6:
+          return 'СБ'
+        case 0:
+          return 'ВС'
+        default:
+          return undefined
+      }
+    },
     timeConverter: function (parameters) {
       let date = new Date(parameters)
       let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10) ? ('0' + date.getMinutes()) : date.getMinutes())
       return time
+    },
+    changeDataInPL () {
+      this.$emit('changeDataInPL', this.pressed, this.dateForSample)
     }
   }
 }
@@ -46,6 +84,15 @@ ul {
 div {
   font-family: Arial, Helvetica, sans-serif;
   font-size: small;
+}
+.dateList {
+  font-size: small;
+  display: flex;
+  align-items: flex-start;
+  align-self: flex-start;
+}
+.date {
+  padding: 5px;
 }
 .list {
   display: flex;

@@ -21,10 +21,23 @@
           </option>
         </select> Режим сортировки: {{channelsSortType}}
       </div>
+      <div class="date" v-for="(date, key) in dateList" :key="key">
+        <b-button :pressed="key === pressed" @click="pressed=key; dateForSample = dateList[key]" variant="primary" size="sm">
+          {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">{{'за '+timeForSample.name}}</b-badge>
+        </b-button>
+        <b-dropdown v-if="key===pressed" :pressed="true" right size="sm" variant="primary">
+          <b-dropdown-item @click="timeForSample=timeList[0]"><span>ночь  00.00-06.00</span></b-dropdown-item>
+          <b-dropdown-item @click="timeForSample=timeList[1]"><span>утро  06.00-12.00</span></b-dropdown-item>
+          <b-dropdown-item @click="timeForSample=timeList[2]"><span>день  12.00-18.00</span></b-dropdown-item>
+          <b-dropdown-item @click="timeForSample=timeList[3]"><span>вечер 18.00-24.00</span></b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+          <b-dropdown-item @click="timeForSample=timeList[4]"><span>сутки 00.00-24.00</span></b-dropdown-item>
+        </b-dropdown>
+      </div>
     </div>
     <div class="sidebar"></div>
     <div class="content">
-      <router-view :channels="sortedChannels" :now="now" :dateList="dateList" :dateForSample="dateForSample" :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample" @changeDataInPL="changeDataInPL"></router-view></div>
+      <router-view :channels="sortedChannels" :now="now" :dateList="dateList" :dateForSample="dateForSample" :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample"></router-view></div>
     <div class="footer">sdfgsgfgs</div>
   </div>
 </template>
@@ -134,10 +147,6 @@ export default {
         temp.day = '0' + temp.day
       }
       this.dateList.push(temp)
-    },
-    changeDataInPL (key, date) {
-      this.pressed = key
-      this.dateForSample = date
     }
   },
   computed: {
@@ -196,6 +205,12 @@ export default {
   border-radius: 10px;
   background: lightgoldenrodyellow;
   align-items: center;
+}
+.date {
+  font-size: small;
+  display: flex;
+  align-items: flex-start;
+  align-self: flex-start;
 }
 .footer {
   background: lightgoldenrodyellow;
