@@ -10,6 +10,7 @@
         <router-link class="nav-link" :to="'/fast'">Сейчас в эфире</router-link>
         <router-link class="nav-link" :to="'/list'">Программа ТВ</router-link>
         <router-link class="nav-link" :to="'/programs'">Программа ТВ</router-link>
+        <router-link class="nav-link" :to="'/settings'">Настройки</router-link>
         <router-link class="nav-link" :to="'/'">Пример изначальный</router-link>
       </nav>
     </div>
@@ -24,8 +25,10 @@
     </div>
     <div class="sidebar"></div>
     <div class="content">
-      <router-view :channels="sortedChannels" :now="now" :dateList="dateList" :dateForSample="dateForSample" :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample" @changeDataInPL="changeDataInPL"></router-view></div>
-    <div class="footer">sdfgsgfgs</div>
+      <router-view :channels="sortedChannels" :now="now" :dateList="dateList" :dateForSample="dateForSample"
+                   :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample" @changeDataInPL="changeDataInPL"
+                   @changeTimeInPL="changeTimeInPL"></router-view></div>
+    <div class="footer">Программа телепередач, 2018</div>
   </div>
 </template>
 
@@ -66,7 +69,8 @@ export default {
       for (let program of channel.programs) {
         if (this.dateList.length === 0) {
           this.pushDayInWeek(program.program_start)
-        } else if (this.getDateYYYYMMDD(this.dateList[this.dateList.length - 1].ms) < this.getDateYYYYMMDD(program.program_start)) {
+        } else if (this.getDateYYYYMMDD(this.dateList[this.dateList.length - 1].ms) <
+          this.getDateYYYYMMDD(program.program_start)) {
           this.pushDayInWeek(program.program_start)
         }
       }
@@ -138,6 +142,9 @@ export default {
     changeDataInPL (key, date) {
       this.pressed = key
       this.dateForSample = date
+    },
+    changeTimeInPL (time) {
+      this.timeForSample = time
     }
   },
   computed: {

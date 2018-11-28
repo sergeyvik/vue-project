@@ -4,6 +4,7 @@ import HelloWorld from '@/components/HelloWorld'
 import ProgramList from '@/components/ProgramList'
 import FastView from '@/components/FastView'
 import ProgramsView from '@/components/ProgramsView'
+import Settings from '@/components/Settings'
 
 Vue.use(Router)
 
@@ -29,6 +30,11 @@ export default new Router({
       path: '/programs',
       name: 'programs',
       component: ProgramsView
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: Settings
     }
   ]
 })

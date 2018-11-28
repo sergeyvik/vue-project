@@ -3,15 +3,16 @@
     <div class="dateList">
       <div class="date" v-for="(date, key) in dateList" :key="key">
         <b-button :pressed="key === pressed" @click="changeDataInPL(key, dateList[key])" variant="primary" size="sm">
-          {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">{{'за '+timeForSample.name}}</b-badge>
+          {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">
+          {{'за '+timeForSample.name}}</b-badge>
         </b-button>
         <b-dropdown v-if="key===pressed" :pressed="true" right size="sm" variant="primary">
-          <b-dropdown-item @click="timeForSample=timeList[0]"><span>ночь  00.00-06.00</span></b-dropdown-item>
-          <b-dropdown-item @click="timeForSample=timeList[1]"><span>утро  06.00-12.00</span></b-dropdown-item>
-          <b-dropdown-item @click="timeForSample=timeList[2]"><span>день  12.00-18.00</span></b-dropdown-item>
-          <b-dropdown-item @click="timeForSample=timeList[3]"><span>вечер 18.00-24.00</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[0])"><span>ночь  00.00-06.00</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[1])"><span>утро  06.00-12.00</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[2])"><span>день  12.00-18.00</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[3])"><span>вечер 18.00-24.00</span></b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="timeForSample=timeList[4]"><span>сутки 00.00-24.00</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сутки 00.00-24.00</span></b-dropdown-item>
         </b-dropdown>
       </div>
     </div>
@@ -62,11 +63,15 @@ export default {
     },
     timeConverter: function (parameters) {
       let date = new Date(parameters)
-      let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10) ? ('0' + date.getMinutes()) : date.getMinutes())
+      let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
+        ? ('0' + date.getMinutes()) : date.getMinutes())
       return time
     },
-    changeDataInPL () {
-      this.$emit('changeDataInPL', this.pressed, this.dateForSample)
+    changeDataInPL (key, date) {
+      this.$emit('changeDataInPL', key, date)
+    },
+    changeTimeInPL (time) {
+      this.$emit('changeTimeInPL', time)
     }
   }
 }
