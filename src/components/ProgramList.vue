@@ -23,8 +23,9 @@
             <div class="channel_name">{{channel.channel_name}}</div>
           </div>
           <div class="channel_text" v-for="program in channel.programs" :key="program.program_start">
-            <div class="channel_time">{{timeConverter(program.program_start)}}</div>
-            <div> {{program.program_name}}</div>
+            <div :class="[getProgramClassName(program)]" :style="{backgroundColor: '#ff0000'}" class="channel_time">{{timeConverter(program.program_start)}}</div>
+            <div v-if="program.program_description" v-b-popover.hover="program.program_description" title="Описание"> {{program.program_name}}</div>
+            <div v-else> {{program.program_name}}</div>
           </div>
       </div>
     </div>
@@ -72,6 +73,12 @@ export default {
     },
     changeTimeInPL (time) {
       this.$emit('changeTimeInPL', time)
+    },
+    getProgramClassName (program) {
+      if (program.program_category === 'Спорт') {
+        return 'sport'
+      }
+      return ''
     }
   }
 }
@@ -128,6 +135,9 @@ div {
 }
 .channel_text {
   display: flex;
+}
+.sport {
+  background: aquamarine;
 }
 img {
   padding-right: 5px;

@@ -4,13 +4,15 @@
       <input :value="num">
 
     <h2>Essential Links  dd2</h2>
-
+    <program-list></program-list>
   </div>
 </template>
 
 <script>
+import ProgramList from './ProgramList'
 export default {
   name: 'HelloWorld',
+  components: {ProgramList},
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',

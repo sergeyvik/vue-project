@@ -1,5 +1,6 @@
 <template>
   <div class="app">
+    <i class="far fa-star"></i>
     <div class="header">
       <nav class="nav">
         <!-- Brand/logo -->
@@ -29,6 +30,7 @@
                    :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample" @changeDataInPL="changeDataInPL"
                    @changeTimeInPL="changeTimeInPL"></router-view></div>
     <div class="footer">Программа телепередач, 2018</div>
+
   </div>
 </template>
 

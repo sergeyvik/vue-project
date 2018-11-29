@@ -1,6 +1,6 @@
 <template>
   <div>
-
+    <input type="color" v-model="color">
   </div>
 </template>
 
@@ -9,6 +9,12 @@ export default {
   name: 'Settings',
   data () {
     return {
+      color: '#e66465'
+    }
+  },
+  watch: {
+    color (val) {
+      alert(val)
     }
   }
 }
