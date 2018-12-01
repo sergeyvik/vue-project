@@ -1,6 +1,5 @@
 <template>
   <div class="app">
-    <i class="far fa-star"></i>
     <div class="header">
       <nav class="nav">
         <!-- Brand/logo -->
@@ -23,12 +22,20 @@
           </option>
         </select> Режим сортировки: {{channelsSortType}}
       </div>
+      <div>
+        <div class="form-check" v-for="(label, i) in category" :key="i">
+          <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" v-model="category[i].checked">{{label.name + ' '}}
+            <i :class="label.icon" :style="{color: label.color}"></i>
+          </label>
+        </div>
+      </div>
     </div>
     <div class="sidebar"></div>
     <div class="content">
-      <router-view :channels="sortedChannels" :now="now" :dateList="dateList" :dateForSample="dateForSample"
+      <router-view :channels="sortedChannels" :fastView="currentProgram" :now="now" :dateList="dateList" :dateForSample="dateForSample"
                    :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample" @changeDataInPL="changeDataInPL"
-                   @changeTimeInPL="changeTimeInPL"></router-view></div>
+                   @changeTimeInPL="changeTimeInPL" :category="category"></router-view></div>
     <div class="footer">Программа телепередач, 2018</div>
 
   </div>
@@ -42,27 +49,77 @@ export default {
   data: function () {
     return {
       channels: require('../src/tvp_00.json'),
-      dateList: [],
-      timeList: [
-        {start: 0, end: 21600000, name: 'ночь'},
-        {start: 21600000, end: 43200000, name: 'утро'},
-        {start: 43200000, end: 64800000, name: 'день'},
-        {start: 64800000, end: 84400000, name: 'вечер'},
-        {start: 0, end: 84400000, name: 'сутки'}
-      ],
       channelsSample: [],
       channelsSortType: 'by-id-down',
+      category: {
+        adult: {
+          icon: 'fa fa-venus-mars',
+          name: 'Для взрослых',
+          color: '#FF7373',
+          checked: false
+        },
+        cognitive: {
+          icon: 'fa fa-user-graduate',
+          name: 'Познавательные',
+          color: '#67E667',
+          checked: false
+        },
+        entertaining: {
+          icon: 'fa fa-theater-masks',
+          name: 'Развлекательные',
+          color: '#FFB273',
+          checked: false
+        },
+        film: {
+          icon: 'fa fa-video',
+          name: 'Художественный фильм',
+          color: '#4671D5',
+          checked: false
+        },
+        informational: {
+          icon: 'fa fa-align-justify',
+          name: 'Инфомационные',
+          color: '#679FD2',
+          checked: false
+        },
+        kids: {
+          icon: 'fab fa-mailchimp',
+          name: 'Детям',
+          color: '#00fffc',
+          checked: false
+        },
+        movie: {
+          icon: 'fa fa-film',
+          name: 'Сериал',
+          color: '#E667AF',
+          checked: false
+        },
+        sport: {
+          icon: 'fa fa-volleyball-ball',
+          name: 'Спорт',
+          color: '#7D71D8',
+          checked: false
+        }
+      },
+      counter: 0,
+      dateForSample: {},
+      dateList: [],
+      now: 1541321000000,
       optionsChannelSort: [
         {text: 'По названию канала A->Z, А->Я', value: 'by-name-up'},
         {text: 'По названию канала Я->А, Z->A', value: 'by-name-down'},
         {text: 'По возрастанию ID канала ', value: 'by-id-up'},
         {text: 'По убыванию ID канала', value: 'by-id-down'}
       ],
-      counter: 0,
-      dateForSample: {},
-      timeForSample: {start: 0, end: 84400000, name: 'сутки'},
-      now: 1541321000000,
-      pressed: null
+      pressed: null,
+      timeForSample: {start: 18000000, end: 102400000, name: 'сутки'},
+      timeList: [
+        {start: 18000000, end: 43200000, name: 'утро'},
+        {start: 43200000, end: 64800000, name: 'день'},
+        {start: 64800000, end: 86400000, name: 'вечер'},
+        {start: 86400000, end: 102400000, name: 'ночь'},
+        {start: 18000000, end: 102400000, name: 'сутки'}
+      ]
     }
   },
   created: function () {
@@ -72,7 +129,7 @@ export default {
         if (this.dateList.length === 0) {
           this.pushDayInWeek(program.program_start)
         } else if (this.getDateYYYYMMDD(this.dateList[this.dateList.length - 1].ms) <
-          this.getDateYYYYMMDD(program.program_start)) {
+          this.getDateYYYYMMDD(program.program_start - 18000000)) {
           this.pushDayInWeek(program.program_start)
         }
       }
@@ -92,6 +149,13 @@ export default {
     }
   },
   methods: {
+    changeDataInPL (key, date) {
+      this.pressed = key
+      this.dateForSample = date
+    },
+    changeTimeInPL (time) {
+      this.timeForSample = time
+    },
     getDayName: function (num) {
       switch (num) {
         case 1:
@@ -140,16 +204,46 @@ export default {
         temp.day = '0' + temp.day
       }
       this.dateList.push(temp)
-    },
-    changeDataInPL (key, date) {
-      this.pressed = key
-      this.dateForSample = date
-    },
-    changeTimeInPL (time) {
-      this.timeForSample = time
     }
   },
   computed: {
+    currentProgram () {
+      let result = []
+      for (let channel of this.channels) {
+        let data = {}
+        let counter = 0
+        for (let program of channel.programs) {
+          if (program.program_start <= this.now && program.program_end > this.now) {
+            data.channel_id = channel.channel_id
+            data.channel_icon = channel.channel_icon
+            data.channel_name = channel.channel_name
+            data.program_start = program.program_start
+            data.program_end = program.program_end
+            data.program_name = program.program_name
+            data.program_description = program.program_description
+            data.program_category = program.program_category
+            data.program_rating = program.program_rating
+            counter++
+            break
+          }
+        }
+        if (counter > 0) {
+          result.push(data)
+        }
+      }
+      switch (this.channelsSortType) {
+        case 'by-name-up':
+          return _.orderBy(result, ['channel_name'], ['asc'])
+        case 'by-name-down':
+          return _.orderBy(result, ['channel_name'], ['desc'])
+        case 'by-id-up':
+          return _.orderBy(result, ['channel_id'], ['asc'])
+        case 'by-id-down':
+          return _.orderBy(result, ['channel_id'], ['desc'])
+        default:
+          return _.orderBy(result, ['channel_id'], ['asc'])
+      }
+    },
     sortedSampleChannels () {
       let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
       let result = []
@@ -157,8 +251,8 @@ export default {
         let data = {}
         let programs = []
         for (let program of channel.programs) {
-          if (((date.valueOf() + this.timeForSample.start) <= program.program_start) &&
-            (date.valueOf() + this.timeForSample.end) >= program.program_start) {
+          if ((program.program_start >= (date.valueOf() + this.timeForSample.start)) &&
+            (program.program_start < date.valueOf() + this.timeForSample.end)) {
             programs.push(program)
           }
         }
@@ -224,6 +318,14 @@ export default {
 .content {
   background: white;
   border-radius: 10px;
+}
+.form-check {
+  display: flex;
+  flex-wrap: wrap;
+}
+.form-check2 {
+  display: flex;
+  flex-wrap: wrap;
 }
 span {
   font-size: small;

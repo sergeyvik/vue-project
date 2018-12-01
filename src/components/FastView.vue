@@ -1,17 +1,21 @@
 <template>
   <div>
     <div class="list">
-      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in currentProgram"
+      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in fastView"
            :key="channel.channel_id">
         <div class="card_header">
           <div class="channel_ico">
-            <img v-if="channel.channel_icon !== undefined" :src="channel.channel_icon" alt="Знак ТВ">
+            <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
             <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
           </div>
           <div class="channel_header">
             <div class="channel_name">{{channel.channel_name}}</div>
-            <div>{{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
-            <div>{{channel.program_name}}</div>
+            <div v-if="channel.program_category" :style="{backgroundColor: checkColor(channel)}">
+              {{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
+            <div v-else>{{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
+            <div v-if="channel.program_description" v-b-popover.hover="channel.program_description" title="Описание">
+              {{channel.program_name + ' '}} <i :class="checkLabel(channel)" :style="{color:checkColor(channel)}"></i></div>
+            <div v-else> {{channel.program_name + ' '}} <i :class="checkLabel(channel)" :style="{color:checkColor(channel)}"></i></div>
           </div>
         </div>
       </div>
@@ -22,10 +26,11 @@
 <script>
 export default {
   name: 'FastView',
-  props: ['channels', 'now'],
+  props: ['fastView', 'now', 'category'],
   data () {
     return {
-      currentProgramList: []
+      currentProgramList: [],
+      temp: []
     }
   },
   methods: {
@@ -34,31 +39,25 @@ export default {
       let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
         ? ('0' + date.getMinutes()) : date.getMinutes())
       return time
+    },
+    checkColor (res) {
+      for (let data in this.category) {
+        if (this.category[data].name === res.program_category && this.category[data].checked === true) {
+          return this.category[data].color
+        }
+      }
+      return ''
+    },
+    checkLabel (res) {
+      for (let data in this.category) {
+        if (this.category[data].name === res.program_category && this.category[data].checked === true) {
+          return this.category[data].icon
+        }
+      }
+      return ''
     }
   },
   computed: {
-    currentProgram () {
-      let result = []
-      for (let channel of this.channels) {
-        let data = {}
-        for (let program of channel.programs) {
-          if (program.program_start <= this.now && program.program_end > this.now) {
-            data.channel_id = channel.channel_id
-            data.channel_icon = channel.channel_icon
-            data.channel_name = channel.channel_name
-            data.program_start = program.program_start
-            data.program_end = program.program_end
-            data.program_name = program.program_name
-            data.program_description = program.program_description
-            data.program_category = program.program_category
-            data.program_rating = program.program_rating
-            break
-          }
-        }
-        result.push(data)
-      }
-      return result
-    }
   }
 }
 </script>

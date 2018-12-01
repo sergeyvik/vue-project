@@ -24,10 +24,9 @@
             <div class="channel_name">{{channel.channel_name}}</div>
           </div>
           <div class="channel_text" v-for="program in channel.programs" :key="program.program_start">
-            <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">{{timeConverter(program.program_start)}}</div>
-            <div v-else class="channel_time">{{timeConverter(program.program_start)}}</div>
-            <div v-if="program.program_description" v-b-popover.hover="program.program_description" title="Описание"> {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)" :style="{color:checkColor(program)}"></i></div>
-            <div v-else> {{program.program_name + " "}} <i v-if="program.program_category" :class="checkLabel(program)" :style="{color:checkColor(program)}"></i></div>
+            <div :class="[getProgramClassName(program)]" :style="{backgroundColor: '#ff0000'}" class="channel_time">{{timeConverter(program.program_start)}}</div>
+            <div v-if="program.program_description" v-b-popover.hover="program.program_description" title="Описание"> {{program.program_name}}</div>
+            <div v-else> {{program.program_name}}</div>
           </div>
       </div>
     </div>
@@ -38,7 +37,7 @@
 
 export default {
   name: 'ProgramList',
-  props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample', 'category'],
+  props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample'],
   data () {
     return {
     }
@@ -79,22 +78,6 @@ export default {
     getProgramClassName (program) {
       if (program.program_category === 'Спорт') {
         return 'sport'
-      }
-      return ''
-    },
-    checkColor (res) {
-      for (let data in this.category) {
-        if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].color
-        }
-      }
-      return ''
-    },
-    checkLabel (res) {
-      for (let data in this.category) {
-        if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].icon
-        }
       }
       return ''
     }
@@ -149,7 +132,7 @@ div {
   flex-grow: 1;
 }
 .channel_time {
-  margin-right: 5px;
+  padding-right: 5px;
 }
 .channel_text {
   display: flex;
