@@ -21,9 +21,9 @@
           <div class="channel_header">
             <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
             <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
-            <div class="channel_name">{{channel.channel_name}}</div>
+            <div class="channel_name">{{channel.channel_name}} {{channel.channel_id}}</div>
           </div>
-          <div class="channel_text" v-for="program in channel.programs" :key="program.program_start">
+          <div class="channel_text" :class="{past: now>program.program_end, current: now>program.program_start && now<program.program_end}" v-for="program in channel.programs" :key="program.program_start">
             <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">{{timeConverter(program.program_start)}}</div>
             <div v-else class="channel_time">{{timeConverter(program.program_start)}}</div>
             <div v-if="program.program_description" v-b-popover.hover="program.program_description" title="Описание"> {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)" :style="{color:checkColor(program)}"></i></div>
@@ -38,7 +38,7 @@
 
 export default {
   name: 'ProgramList',
-  props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample', 'category'],
+  props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample', 'category', 'now'],
   data () {
     return {
     }
@@ -154,8 +154,11 @@ div {
 .channel_text {
   display: flex;
 }
-.sport {
-  background: aquamarine;
+.past {
+  color: #888;
+}
+.current {
+  font-weight: bold;
 }
 img {
   padding-right: 5px;

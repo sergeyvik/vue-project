@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <div class="header">
-      <nav class="nav">
+      <nav class="nav fixed-top">
         <!-- Brand/logo -->
         <a class="navbar-brand" href="#">
           <img src="../src/assets/pitivi.png" alt="logo" style="width:60px;">
@@ -48,9 +48,9 @@ export default {
   name: 'App',
   data: function () {
     return {
-      channels: require('../src/tvp_00.json'),
+      channels: require('../src/tvp_02.json'),
       channelsSample: [],
-      channelsSortType: 'by-id-down',
+      channelsSortType: 'by-id-up',
       category: {
         adult: {
           icon: 'fa fa-venus-mars',
@@ -67,7 +67,7 @@ export default {
         entertaining: {
           icon: 'fa fa-theater-masks',
           name: 'Развлекательные',
-          color: '#FFB273',
+          color: '#ffd3b0',
           checked: false
         },
         film: {
@@ -104,7 +104,7 @@ export default {
       counter: 0,
       dateForSample: {},
       dateList: [],
-      now: 1541321000000,
+      now: 0,
       optionsChannelSort: [
         {text: 'По названию канала A->Z, А->Я', value: 'by-name-up'},
         {text: 'По названию канала Я->А, Z->A', value: 'by-name-down'},
@@ -123,7 +123,7 @@ export default {
     }
   },
   created: function () {
-    let date = new Date()
+    let date
     for (let channel of this.channels) {
       for (let program of channel.programs) {
         if (this.dateList.length === 0) {
@@ -134,7 +134,7 @@ export default {
         }
       }
     }
-    /* this.now = date.valueOf() */
+    setInterval(this.actualTime, 10000)
     let yyyymmdd = this.getDateYYYYMMDD(this.now).toString()
     this.dateForSample.year = Number(yyyymmdd.slice(0, 4))
     this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)))
@@ -149,6 +149,10 @@ export default {
     }
   },
   methods: {
+    actualTime () {
+      let date = new Date()
+      this.now = date.valueOf()
+    },
     changeDataInPL (key, date) {
       this.pressed = key
       this.dateForSample = date
@@ -311,6 +315,7 @@ export default {
   background: lightgoldenrodyellow;
   padding: 5px 20px;
   margin: 5px 0px;
+  margin-top: 90px;
   border-radius: 10px;
   display: flex;
   flex-wrap: wrap;

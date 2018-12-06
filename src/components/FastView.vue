@@ -13,9 +13,10 @@
             <div v-if="channel.program_category" :style="{backgroundColor: checkColor(channel)}">
               {{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
             <div v-else>{{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
-            <div v-if="channel.program_description" v-b-popover.hover="channel.program_description" title="Описание">
+            <div class="channel_desc" v-if="channel.program_description" v-b-popover.hover="channel.program_description" title="Описание">
               {{channel.program_name + ' '}} <i :class="checkLabel(channel)" :style="{color:checkColor(channel)}"></i></div>
-            <div v-else> {{channel.program_name + ' '}} <i :class="checkLabel(channel)" :style="{color:checkColor(channel)}"></i></div>
+            <div class="channel_desc" v-else> {{channel.program_name + ' '}} <i :class="checkLabel(channel)" :style="{color:checkColor(channel)}"></i></div>
+            <b-progress class="progress"  height="3px" :value="now-channel.program_start" :max="channel.program_end-channel.program_start"></b-progress>
           </div>
         </div>
       </div>
@@ -68,6 +69,9 @@ export default {
     font-family: Arial, Helvetica, sans-serif;
     font-size: small;
   }
+  img {
+    width: 60px;
+  }
   .list {
     display: flex;
     flex-wrap: wrap;
@@ -77,6 +81,7 @@ export default {
   }
   .card_header {
     display: flex;
+    height: 100%;
   }
   .channel_ico {
   }
@@ -84,12 +89,21 @@ export default {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    position: relative;
   }
   .channel_name {
     display: flex;
     font-size: small;
     font-weight: bold;
     justify-content: center;
+  }
+  .channel_desc {
+    margin-bottom: 20px;
+  }
+  .progress {
+    position: absolute;
+    width: 90%;
+    bottom: 5px;
   }
 
 </style>
