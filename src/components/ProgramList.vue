@@ -2,7 +2,7 @@
   <div>
     <div class="dateList">
       <div class="date" v-for="(date, key) in dateList" :key="key">
-        <b-button :pressed="key === pressed" @click="changeDataInPL(key, dateList[key])" variant="primary" size="sm">
+        <b-button :pressed="key === pressed" @click="changeDataInPL(key, dateList[key])" variant="outline-primary" size="sm">
           {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">
           {{'за '+timeForSample.name}}</b-badge>
         </b-button>

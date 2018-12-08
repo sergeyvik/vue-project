@@ -1,17 +1,31 @@
 <template>
   <div class="app">
-    <div class="header">
-      <nav class="nav fixed-top">
-        <!-- Brand/logo -->
-        <a class="navbar-brand" href="#">
-          <img src="../src/assets/pitivi.png" alt="logo" style="width:60px;">
-        </a>
-        <!-- Links -->
-        <router-link class="nav-link" :to="'/fast'">Сейчас в эфире</router-link>
-        <router-link class="nav-link" :to="'/list'">Программа ТВ</router-link>
-        <router-link class="nav-link" :to="'/programs'">Программа ТВ</router-link>
-        <router-link class="nav-link" :to="'/settings'">Настройки</router-link>
-        <router-link class="nav-link" :to="'/'">Пример изначальный</router-link>
+    <div class="header fixed-top">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="#">ТВ Программа</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"><img src="../src/assets/pitivi.png" alt="logo" style="width:10px;"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarColor01">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <router-link class="nav-link" :to="'/fast'">Сейчас в эфире</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" :to="'/list'">Программа ТВ</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" :to="'/programs'">Программа ТВ</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" :to="'/settings'">Настройки</router-link>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="text" placeholder="Поиск">
+            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Искать</button>
+          </form>
+        </div>
       </nav>
     </div>
     <div class="menu">
@@ -22,7 +36,7 @@
           </option>
         </select> Режим сортировки: {{channelsSortType}}
       </div>
-      <div>
+      <div class="check-type-program">
         <div class="form-check" v-for="(label, i) in category" :key="i">
           <label class="form-check-label">
               <input type="checkbox" class="form-check-input" v-model="category[i].checked">{{label.name + ' '}}
@@ -73,7 +87,7 @@ export default {
         film: {
           icon: 'fa fa-video',
           name: 'Художественный фильм',
-          color: '#4671D5',
+          color: '#007bff',
           checked: false
         },
         informational: {
@@ -297,7 +311,6 @@ export default {
   padding: 5px;
 }
 .header {
-  margin: 5px 0px;
 }
 .nav {
   border-radius: 10px;
@@ -305,7 +318,7 @@ export default {
   align-items: center;
 }
 .footer {
-  background: lightgoldenrodyellow;
+  background: #007bff;
   padding: 20px;
   text-align: center;
   margin: 5px 0px;
@@ -315,7 +328,7 @@ export default {
   background: lightgoldenrodyellow;
   padding: 5px 20px;
   margin: 5px 0px;
-  margin-top: 90px;
+  margin-top: 56px;
   border-radius: 10px;
   display: flex;
   flex-wrap: wrap;
@@ -324,13 +337,13 @@ export default {
   background: white;
   border-radius: 10px;
 }
-.form-check {
+.check-type-program {
   display: flex;
   flex-wrap: wrap;
 }
-.form-check2 {
-  display: flex;
-  flex-wrap: wrap;
+.form-check {
+  margin-left: 5px;
+  margin-right: 5px;
 }
 span {
   font-size: small;
