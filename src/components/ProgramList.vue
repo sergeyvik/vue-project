@@ -21,7 +21,7 @@
           <div class="channel_header">
             <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
             <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
-            <div class="channel_name">{{channel.channel_name}} {{channel.channel_id}}</div>
+            <div class="channel_name">{{channel.channel_name}}</div>
           </div>
           <div class="channel_text" :class="{past: now>program.program_end, current: now>program.program_start && now<program.program_end}" v-for="program in channel.programs" :key="program.program_start">
             <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">{{timeConverter(program.program_start)}}</div>
