@@ -201,6 +201,7 @@ div {
 }
 .channel_time {
   margin: 0px 10px;
+  display: block;
 }
 .channel_text {
   display: flex;
@@ -217,7 +218,6 @@ div {
   font-size: 120%;
   color: silver;
   opacity: 0;
-  width: 15px;
 }
 .bell:hover {
   color: gold;

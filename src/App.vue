@@ -42,9 +42,9 @@
           <b-dropdown-item @click="channelsGroupsSelected=4">{{channelsGroups[4].name}}</b-dropdown-item>
           <b-dropdown-item @click="channelsGroupsSelected=5">{{channelsGroups[5].name}}</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="channelsGroupsSelected=0">Все каналы</b-dropdown-item>
-          <b-dropdown-item @click="channelsGroupsSelected=1">Избранные каналы</b-dropdown-item>
-          <b-dropdown-item @click="channelsGroupsSelected=2">Скрытые скрытые</b-dropdown-item>
+          <b-dropdown-item @click="channelsGroupsSelected=0">{{channelsGroups[0].name}}</b-dropdown-item>
+          <b-dropdown-item @click="channelsGroupsSelected=1">{{channelsGroups[1].name}}</b-dropdown-item>
+          <b-dropdown-item @click="channelsGroupsSelected=2">{{channelsGroups[2].name}}</b-dropdown-item>
         </b-dropdown>
       </div>
       <div class="check-type-program">
@@ -76,7 +76,7 @@ export default {
   data: function () {
     return {
       chPData: require('../src/tvp_02.json'),
-      channels: [],
+      allChannels: [],
       channelsGroups: [
         {
           name: 'Все каналы'
@@ -176,9 +176,9 @@ export default {
     }
   },
   created: function () {
-    this.channels = this.dataPreparation(this.chPData)
+    this.allChannels = this.dataPreparation(this.chPData)
     let date = new Date()
-    for (let channel of this.channels) {
+    for (let channel of this.allChannels) {
       for (let program of channel.programs) {
         if (this.dateList.length === 0) {
           this.pushDayInWeek(program.program_start)
@@ -209,20 +209,20 @@ export default {
       this.now = date.valueOf()
     },
     changeHidden (data) {
-      for (let channel of this.channels) {
+      for (let channel of this.allChannels) {
         if (channel.channel_id === data.channel_id) {
           channel.hidden = !channel.hidden
           break
         }
       }
-      this.channels = this.channels.slice(0)
+      this.allChannels = this.allChannels.slice(0)
     },
     changeDataInPL (key, date) {
       this.pressed = key
       this.dateForSample = date
     },
     changeReminder (channelReminder, programReminder) {
-      for (let channel of this.channels) {
+      for (let channel of this.allChannels) {
         if (channel.channel_id === channelReminder.channel_id) {
           for (let program of channel.programs) {
             if (program.program_start === programReminder.program_start) {
@@ -231,7 +231,7 @@ export default {
               } else {
                 program.reminder = true
               }
-              this.channels = this.channels.slice(0)
+              this.allChannels = this.allChannels.slice(0)
               return
             }
           }
@@ -239,13 +239,13 @@ export default {
       }
     },
     changeStarred (data) {
-      for (let channel of this.channels) {
+      for (let channel of this.allChannels) {
         if (channel.channel_id === data.channel_id) {
           channel.starred = !channel.starred
           break
         }
       }
-      this.channels = this.channels.slice(0)
+      this.allChannels = this.allChannels.slice(0)
     },
     changeTimeInPL (time) {
       this.timeForSample = time
@@ -312,6 +312,29 @@ export default {
     }
   },
   computed: {
+    channels () {
+      let result = []
+      if (this.channelsGroupsSelected === 0) {
+        for (let channel of this.allChannels) {
+          if (channel.hidden === false) {
+            result.push(channel)
+          }
+        }
+      } else if (this.channelsGroupsSelected === 1) {
+        for (let channel of this.allChannels) {
+          if (channel.starred === true) {
+            result.push(channel)
+          }
+        }
+      } else if (this.channelsGroupsSelected === 2) {
+        for (let channel of this.allChannels) {
+          if (channel.hidden === true) {
+            result.push(channel)
+          }
+        }
+      }
+      return result
+    },
     currentProgram () {
       let result = []
       for (let channel of this.channels) {
@@ -336,24 +359,34 @@ export default {
         }
         if (counter > 0) {
           if (data.starred === true && data.hidden === false) {
-            result.unshift(data)
+            data.priority = 1
           } else if (data.hidden === false) {
-            result.push(data)
+            data.priority = 2
+          } else {
+            data.priority = 3
+          }
+          switch (this.channelsGroupsSelected) {
+            case 0:
+              if (data.hidden === false) {
+                result.push(data)
+              }
+              break
+            case 1:
+              if (data.starred === true && data.hidden === false) {
+                result.push(data)
+              }
+              break
+            case 2:
+              if (data.hidden === true) {
+                result.push(data)
+              }
+              break
+            default:
+              return result
           }
         }
       }
-      switch (this.channelsSortType) {
-        case 'by-name-up':
-          return _.orderBy(result, ['channel_name'], ['asc'])
-        case 'by-name-down':
-          return _.orderBy(result, ['channel_name'], ['desc'])
-        case 'by-id-up':
-          return _.orderBy(result, ['channel_id'], ['asc'])
-        case 'by-id-down':
-          return _.orderBy(result, ['channel_id'], ['desc'])
-        default:
-          return _.orderBy(result, ['channel_id'], ['asc'])
-      }
+      return result
     },
     sortedSampleChannels () {
       let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
@@ -376,12 +409,29 @@ export default {
           data.programs = programs
           if (data.starred === true && data.hidden === false) {
             data.priority = 1
-            result.unshift(data)
           } else if (data.hidden === false) {
             data.priority = 2
-            result.push(data)
           } else {
             data.priority = 3
+          }
+          switch (this.channelsGroupsSelected) {
+            case 0:
+              if (data.hidden === false) {
+                result.push(data)
+              }
+              break
+            case 1:
+              if (data.starred === true && data.hidden === false) {
+                result.push(data)
+              }
+              break
+            case 2:
+              if (data.hidden === true) {
+                result.push(data)
+              }
+              break
+            default:
+              return result
           }
         }
       }
