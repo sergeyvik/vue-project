@@ -21,15 +21,21 @@
       <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in channels"
            :key="channel.channel_id">
           <div class="channel_header">
-            <div class="star">
-              <i :class="checkStar(channel)" @click="changeStarred(channel)"></i>
+            <div class="star" :class="{star_active: channel.starred}">
+              <i class="fa-star" :class="[channel.starred?'fas':'far']" @click="changeStarred(channel)"></i>
             </div>
             <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
             <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
             <div class="channel_name">{{channel.channel_name}}</div>
+            <div class="eye" :class="{eye_active: channel.starred}">
+              <i class="fa-eye-slash" :class="[channel.hidden?'fas':'far']" @click="changeHidden(channel)"></i>
+            </div>
           </div>
           <div class="channel_text" :class="{past: now>program.program_end, current: now>program.program_start
            && now<program.program_end}" v-for="program in channel.programs" :key="program.program_start">
+            <div class = "bell" :class="{bell_active: program.reminder}">
+              <i class="fa-bell" :class="[program.reminder?'fas':'far']" @click="changeReminder(channel, program)"></i>
+            </div>
             <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">
               {{timeConverter(program.program_start)}}</div>
             <div v-else class="channel_time">{{timeConverter(program.program_start)}}</div>
@@ -57,12 +63,8 @@ export default {
     changeStarred (channel) {
       this.$emit('changeStarred', channel)
     },
-    checkStar (channel) {
-      if (channel.starred === true) {
-        return 'fas fa-star'
-      } else {
-        return 'far fa-star'
-      }
+    changeReminder (channel, program) {
+      this.$emit('changeReminder', channel, program)
     },
     getDayName: function (num) {
       switch (num) {
@@ -161,12 +163,21 @@ div {
   padding-left: 5px;
   margin-bottom: 5px;
 }
+.card:hover .star {
+  opacity: 1;
+  transition: opacity 0.5s 1s;
+}
 .star {
   margin-top: 5px;
   font-size: 120%;
-  color: white;
+  color: silver;
+  opacity: 0;
 }
 .star:hover {
+  color: gold;
+}
+.star_active {
+  opacity: 1;
   color: gold;
 }
 .channel_header {
@@ -176,17 +187,33 @@ div {
 }
 .channel_name {
   display: flex;
-  font-size: small;
+  font-size: medium;
   font-weight: bold;
   align-self: center;
   justify-content: center;
   flex-grow: 1;
 }
 .channel_time {
-  margin-right: 5px;
+  margin: 0px 10px;
 }
 .channel_text {
   display: flex;
+}
+.channel_text:hover .bell {
+  opacity: 1;
+  transition: opacity 0.5s 0.5s;
+}
+.bell {
+  font-size: 120%;
+  color: silver;
+  opacity: 0;
+}
+.bell:hover {
+  color: gold;
+}
+.bell_active {
+  opacity: 1;
+  color: gold;
 }
 .channel_text:last-child {
   display: flex;

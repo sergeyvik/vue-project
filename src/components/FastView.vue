@@ -4,8 +4,8 @@
       <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in fastView"
            :key="channel.channel_id">
         <div class="card_header">
-          <div class="star">
-            <i :class="checkStar(channel)" @click="changeStarred(channel)"></i>
+          <div class="star" :class="{star_active: channel.starred}">
+            <i class="fa-star" :class="[channel.starred?'fas':'far']" @click="changeStarred(channel)"></i>
           </div>
           <div class="channel_ico">
             <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
@@ -50,13 +50,6 @@ export default {
     changeStarred (channel) {
       this.$emit('changeStarred', channel)
     },
-    checkStar (channel) {
-      if (channel.starred === true) {
-        return 'fas fa-star'
-      } else {
-        return 'far fa-star'
-      }
-    },
     checkColor (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
@@ -86,7 +79,6 @@ export default {
     font-size: small;
   }
   img {
-    width: 60px;
   }
   .list {
     display: flex;
@@ -98,12 +90,21 @@ export default {
     padding-right: 5px;
     padding-left: 5px;
   }
+  .card:hover .star {
+    opacity: 1;
+    transition: opacity 0.5s 1s;
+  }
   .star {
     margin-top: 5px;
     font-size: 120%;
-    color: white;
+    color: silver;
+    opacity: 0;
   }
   .star:hover {
+    color: gold;
+  }
+  .star_active {
+    opacity: 1;
     color: gold;
   }
   .card_header {

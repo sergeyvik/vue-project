@@ -37,11 +37,14 @@
     </b-navbar>
     <div class="menu">
       <div>
-        <select v-model="channelsSortType">
-          <option v-for="option in optionsChannelSort" v-bind:value="option.value" :key="option.text">
-            {{ option.text }}
-          </option>
-        </select> Режим сортировки: {{channelsSortType}}
+        <b-dropdown size="sm" id="ddown1" text="Все каналы" class="m-md-2" type="dark" variant="primary">
+          <b-dropdown-item>Белорусские</b-dropdown-item>
+          <b-dropdown-item>Спорт</b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+          <b-dropdown-item>Все каналы</b-dropdown-item>
+          <b-dropdown-item>Любимые</b-dropdown-item>
+          <b-dropdown-item>Скрытые</b-dropdown-item>
+        </b-dropdown>
       </div>
       <div class="check-type-program">
         <div class="form-check" v-for="(label, i) in category" :key="i">
@@ -56,7 +59,7 @@
     <div class="content">
       <router-view :channels="sortedChannels" :fastView="currentProgram" :now="now" :dateList="dateList" :dateForSample="dateForSample"
                    :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample" @changeDataInPL="changeDataInPL"
-                   @changeTimeInPL="changeTimeInPL" :category="category" @changeStarred="changeStarred"></router-view></div>
+                   @changeTimeInPL="changeTimeInPL" :category="category" @changeStarred="changeStarred" @changeReminder="changeReminder"></router-view></div>
     <div class="footer">Программа телепередач, 2018</div>
 
   </div>
@@ -181,12 +184,31 @@ export default {
       for (let channel of this.channels) {
         if (channel.channel_id === date.channel_id) {
           channel.starred = !channel.starred
+          break
         }
       }
+      this.channels = this.channels.slice(0)
     },
     changeDataInPL (key, date) {
       this.pressed = key
       this.dateForSample = date
+    },
+    changeReminder (channelReminder, programReminder) {
+      for (let channel of this.channels) {
+        if (channel.channel_id === channelReminder.channel_id) {
+          for (let program of channel.programs) {
+            if (program.program_start === programReminder.program_start) {
+              if (program.reminder) {
+                program.reminder = !program.reminder
+              } else {
+                program.reminder = true
+              }
+              this.channels = this.channels.slice(0)
+              return
+            }
+          }
+        }
+      }
     },
     changeTimeInPL (time) {
       this.timeForSample = time
@@ -276,7 +298,11 @@ export default {
           }
         }
         if (counter > 0) {
-          result.push(data)
+          if (data.starred === true && data.hidden === false) {
+            result.unshift(data)
+          } else if (data.hidden === false) {
+            result.push(data)
+          }
         }
       }
       switch (this.channelsSortType) {
@@ -311,7 +337,15 @@ export default {
           data.starred = channel.starred
           data.hidden = channel.hidden
           data.programs = programs
-          result.push(data)
+          if (data.starred === true && data.hidden === false) {
+            data.priority = 1
+            result.unshift(data)
+          } else if (data.hidden === false) {
+            data.priority = 2
+            result.push(data)
+          } else {
+            data.priority = 3
+          }
         }
       }
       return result
@@ -320,15 +354,15 @@ export default {
       let channels = this.sortedSampleChannels
       switch (this.channelsSortType) {
         case 'by-name-up':
-          return _.orderBy(channels, ['channel_name'], ['asc'])
+          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'asc'])
         case 'by-name-down':
-          return _.orderBy(channels, ['channel_name'], ['desc'])
+          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'desc'])
         case 'by-id-up':
-          return _.orderBy(channels, ['channel_id'], ['asc'])
+          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc'])
         case 'by-id-down':
-          return _.orderBy(channels, ['channel_id'], ['desc'])
+          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'desc'])
         default:
-          return _.orderBy(channels, ['channel_id'], ['asc'])
+          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc'])
       }
     }
   }
