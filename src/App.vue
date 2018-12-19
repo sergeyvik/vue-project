@@ -37,13 +37,14 @@
     </b-navbar>
     <div class="menu">
       <div>
-        <b-dropdown size="sm" id="ddown1" text="Все каналы" class="m-md-2" type="dark" variant="primary">
-          <b-dropdown-item>Белорусские</b-dropdown-item>
-          <b-dropdown-item>Спорт</b-dropdown-item>
+        <b-dropdown size="sm" id="ddown1" :text="channelsGroups[channelsGroupsSelected].name" class="m-md-2" type="dark" variant="primary">
+          <b-dropdown-item @click="channelsGroupsSelected=3">{{channelsGroups[3].name}}</b-dropdown-item>
+          <b-dropdown-item @click="channelsGroupsSelected=4">{{channelsGroups[4].name}}</b-dropdown-item>
+          <b-dropdown-item @click="channelsGroupsSelected=5">{{channelsGroups[5].name}}</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item>Все каналы</b-dropdown-item>
-          <b-dropdown-item>Любимые</b-dropdown-item>
-          <b-dropdown-item>Скрытые</b-dropdown-item>
+          <b-dropdown-item @click="channelsGroupsSelected=0">Все каналы</b-dropdown-item>
+          <b-dropdown-item @click="channelsGroupsSelected=1">Избранные каналы</b-dropdown-item>
+          <b-dropdown-item @click="channelsGroupsSelected=2">Скрытые скрытые</b-dropdown-item>
         </b-dropdown>
       </div>
       <div class="check-type-program">
@@ -57,9 +58,11 @@
     </div>
     <div class="sidebar"></div>
     <div class="content">
-      <router-view :channels="sortedChannels" :fastView="currentProgram" :now="now" :dateList="dateList" :dateForSample="dateForSample"
-                   :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample" @changeDataInPL="changeDataInPL"
-                   @changeTimeInPL="changeTimeInPL" :category="category" @changeStarred="changeStarred" @changeReminder="changeReminder"></router-view></div>
+      <router-view :channels="sortedChannels" :fastView="currentProgram" :now="now" :dateList="dateList"
+                   :dateForSample="dateForSample" :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample"
+                   @changeDataInPL="changeDataInPL" @changeTimeInPL="changeTimeInPL" :category="category"
+                   @changeStarred="changeStarred" @changeReminder="changeReminder" @changeHidden="changeHidden">
+      </router-view></div>
     <div class="footer">Программа телепередач, 2018</div>
 
   </div>
@@ -74,6 +77,31 @@ export default {
     return {
       chPData: require('../src/tvp_02.json'),
       channels: [],
+      channelsGroups: [
+        {
+          name: 'Все каналы'
+        },
+        {
+          name: 'Избранные каналы'
+        },
+        {
+          name: 'Скрытые каналы'
+        },
+        {
+          name: 'Белорусские каналы',
+          id: [1, 2, 3, 4, 5, 101, 103, 105, 300003, 300029, 300030, 300048, 300049, 300053, 300065, 300029, 300071,
+            300072, 300075, 400007, 400020]
+        },
+        {
+          name: 'Спортивные каналы',
+          id: [205, 206]
+        },
+        {
+          name: 'Новостные каналы',
+          id: [208]
+        }
+      ],
+      channelsGroupsSelected: 0,
       channelsSample: [],
       channelsSortType: 'by-id-up',
       category: {
@@ -180,10 +208,10 @@ export default {
       let date = new Date()
       this.now = date.valueOf()
     },
-    changeStarred (date) {
+    changeHidden (data) {
       for (let channel of this.channels) {
-        if (channel.channel_id === date.channel_id) {
-          channel.starred = !channel.starred
+        if (channel.channel_id === data.channel_id) {
+          channel.hidden = !channel.hidden
           break
         }
       }
@@ -209,6 +237,15 @@ export default {
           }
         }
       }
+    },
+    changeStarred (data) {
+      for (let channel of this.channels) {
+        if (channel.channel_id === data.channel_id) {
+          channel.starred = !channel.starred
+          break
+        }
+      }
+      this.channels = this.channels.slice(0)
     },
     changeTimeInPL (time) {
       this.timeForSample = time
@@ -395,7 +432,7 @@ export default {
   border-radius: 10px;
 }
 .menu {
-  background: lightgoldenrodyellow;
+  background: #bababa;
   padding: 5px 20px;
   margin: 5px 0px;
   border-radius: 10px;

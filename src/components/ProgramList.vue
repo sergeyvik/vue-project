@@ -27,14 +27,17 @@
             <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
             <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
             <div class="channel_name">{{channel.channel_name}}</div>
-            <div class="eye" :class="{eye_active: channel.starred}">
+            <div class="eye" :class="{eye_active: channel.hidden}">
               <i class="fa-eye-slash" :class="[channel.hidden?'fas':'far']" @click="changeHidden(channel)"></i>
             </div>
           </div>
           <div class="channel_text" :class="{past: now>program.program_end, current: now>program.program_start
            && now<program.program_end}" v-for="program in channel.programs" :key="program.program_start">
-            <div class = "bell" :class="{bell_active: program.reminder}">
+            <div v-if="now<program.program_start" class="bell" :class="{bell_active: program.reminder}">
               <i class="fa-bell" :class="[program.reminder?'fas':'far']" @click="changeReminder(channel, program)"></i>
+            </div>
+            <div v-else class="bell_slash">
+              <i class="far fa-bell-slash"></i>
             </div>
             <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">
               {{timeConverter(program.program_start)}}</div>
@@ -94,6 +97,9 @@ export default {
     },
     changeDataInPL (key, date) {
       this.$emit('changeDataInPL', key, date)
+    },
+    changeHidden (channel) {
+      this.$emit('changeHidden', channel)
     },
     changeTimeInPL (time) {
       this.$emit('changeTimeInPL', time)
@@ -203,10 +209,15 @@ div {
   opacity: 1;
   transition: opacity 0.5s 0.5s;
 }
-.bell {
+.channel_text:hover .bell_slash {
+  opacity: 1;
+  transition: opacity 0.5s 0.5s;
+}
+.bell, .bell_slash {
   font-size: 120%;
   color: silver;
   opacity: 0;
+  width: 15px;
 }
 .bell:hover {
   color: gold;
@@ -218,6 +229,23 @@ div {
 .channel_text:last-child {
   display: flex;
   margin-bottom: 10px;
+}
+.card:hover .eye {
+  opacity: 1;
+  transition: opacity 0.5s 1s;
+}
+.eye {
+  margin-top: 5px;
+  font-size: 120%;
+  color: silver;
+  opacity: 0;
+}
+.eye:hover {
+  color: black;
+}
+.eye_active {
+  opacity: 1;
+  color: black;
 }
 .past {
   color: #888;
