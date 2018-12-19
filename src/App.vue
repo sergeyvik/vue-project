@@ -1,68 +1,35 @@
 <template>
   <div class="app">
-    <div class="header fixed-top">
-      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <router-link class="navbar-brand" :to="'/'">ТВ Программа</router-link>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"><img src="../src/assets/pitivi.png" alt="logo" style="width:10px;"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarColor01">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item" :class="{active: $route.path.match(/^\/fast/)}">
-              <router-link class="nav-link" :to="'/fast'">Сейчас в эфире</router-link>
-            </li>
-            <li class="nav-item" :class="{active: $route.path.match(/^\/list/)}">
-              <router-link class="nav-link" :to="'/list'">Программа ТВ</router-link>
-            </li>
-            <li class="nav-item" :class="{active: $route.path.match(/^\/programs/)}">
-              <router-link class="nav-link" :to="'/programs'">Программа ТВ</router-link>
-            </li>
-            <li class="nav-item" :class="{active: $route.path.match(/^\/setting/)}">
-              <router-link class="nav-link" :to="'/settings'">Настройки</router-link>
-            </li>
-          </ul>
-          <form class="form-inline my-2 my-lg-0" onsubmit="return false">
-            <input class="form-control mr-sm-2" type="text" placeholder="Поиск">
-            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Искать</button>
-          </form>
-        </div>
-      </nav>
-    </div>
-    <b-navbar class="header2" toggleable="md" type="dark" variant="primary">
+    <b-navbar class="header" toggleable="lg" type="dark" variant="primary">
 
       <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 
-      <b-navbar-brand href="#">NavBar</b-navbar-brand>
+      <b-navbar-brand :to="'/'">ТВ Программа</b-navbar-brand>
 
       <b-collapse is-nav id="nav_collapse">
 
         <b-navbar-nav>
-          <b-nav-item href="#">Link</b-nav-item>
-          <b-nav-item href="#" disabled>Disabled</b-nav-item>
+          <b-nav-item :class="{active: $route.path.match(/^\/fast/)}" :to="'/fast'">Сейчас в эфире</b-nav-item>
+          <b-nav-item :class="{active: $route.path.match(/^\/list/)}" :to="'/list'">Программа ТВ</b-nav-item>
+          <b-nav-item :class="{active: $route.path.match(/^\/programs/)}" :to="'/programs'">Тестовая</b-nav-item>
+          <b-nav-item :class="{active: $route.path.match(/^\/setting/)}" :to="'/settings'">Настройки</b-nav-item>
         </b-navbar-nav>
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
 
-          <b-nav-form>
-            <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>
-            <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+          <b-nav-form onsubmit="return false">
+            <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Поиск по названию"/>
+            <b-button size="sm" class="my-2 my-sm-0" type="submit">Искать</b-button>
           </b-nav-form>
-
-          <b-nav-item-dropdown text="Lang" right>
-            <b-dropdown-item href="#">EN</b-dropdown-item>
-            <b-dropdown-item href="#">ES</b-dropdown-item>
-            <b-dropdown-item href="#">RU</b-dropdown-item>
-            <b-dropdown-item href="#">FA</b-dropdown-item>
-          </b-nav-item-dropdown>
 
           <b-nav-item-dropdown right>
             <!-- Using button-content slot -->
             <template slot="button-content">
-              <em>User</em>
+              <em>Профиль</em>
             </template>
-            <b-dropdown-item href="#">Profile</b-dropdown-item>
-            <b-dropdown-item href="#">Signout</b-dropdown-item>
+            <b-dropdown-item :to="'/settings'">Настройки</b-dropdown-item>
+            <b-dropdown-item :to="'/settings'">Войти</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
 
@@ -79,8 +46,8 @@
       <div class="check-type-program">
         <div class="form-check" v-for="(label, i) in category" :key="i">
           <label class="form-check-label">
-              <input type="checkbox" class="form-check-input" v-model="category[i].checked">{{label.name + ' '}}
-            <i :class="label.icon" :style="{color: label.color}"></i>
+              <input type="checkbox" class="form-check-input" v-model="category[i].checked">
+            <i :class="label.icon" :style="{color: label.color}"></i> {{' ' + label.name + ' '}}
           </label>
         </div>
       </div>
@@ -89,7 +56,7 @@
     <div class="content">
       <router-view :channels="sortedChannels" :fastView="currentProgram" :now="now" :dateList="dateList" :dateForSample="dateForSample"
                    :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample" @changeDataInPL="changeDataInPL"
-                   @changeTimeInPL="changeTimeInPL" :category="category"></router-view></div>
+                   @changeTimeInPL="changeTimeInPL" :category="category" @changeStarred="changeStarred"></router-view></div>
     <div class="footer">Программа телепередач, 2018</div>
 
   </div>
@@ -102,14 +69,39 @@ export default {
   name: 'App',
   data: function () {
     return {
-      channels: require('../src/tvp_02.json'),
+      chPData: require('../src/tvp_02.json'),
+      channels: [],
       channelsSample: [],
       channelsSortType: 'by-id-up',
       category: {
-        adult: {
-          icon: 'fa fa-venus-mars',
-          name: 'Для взрослых',
-          color: '#FF7373',
+        film: {
+          icon: 'fa fa-video',
+          name: 'Фильм',
+          color: '#007bff',
+          checked: false
+        },
+        movie: {
+          icon: 'fa fa-film',
+          name: 'Сериал',
+          color: '#E667AF',
+          checked: false
+        },
+        informational: {
+          icon: 'fa fa-align-justify',
+          name: 'Новости',
+          color: '#679FD2',
+          checked: false
+        },
+        sport: {
+          icon: 'fa fa-volleyball-ball',
+          name: 'Спорт',
+          color: '#7D71D8',
+          checked: false
+        },
+        kids: {
+          icon: 'fab fa-mailchimp',
+          name: 'Детям',
+          color: '#00fffc',
           checked: false
         },
         cognitive: {
@@ -124,34 +116,10 @@ export default {
           color: '#ffd3b0',
           checked: false
         },
-        film: {
-          icon: 'fa fa-video',
-          name: 'Художественный фильм',
-          color: '#007bff',
-          checked: false
-        },
-        informational: {
-          icon: 'fa fa-align-justify',
-          name: 'Инфомационные',
-          color: '#679FD2',
-          checked: false
-        },
-        kids: {
-          icon: 'fab fa-mailchimp',
-          name: 'Детям',
-          color: '#00fffc',
-          checked: false
-        },
-        movie: {
-          icon: 'fa fa-film',
-          name: 'Сериал',
-          color: '#E667AF',
-          checked: false
-        },
-        sport: {
-          icon: 'fa fa-volleyball-ball',
-          name: 'Спорт',
-          color: '#7D71D8',
+        adult: {
+          icon: 'fa fa-venus-mars',
+          name: 'Взрослым',
+          color: '#FF7373',
           checked: false
         }
       },
@@ -177,6 +145,7 @@ export default {
     }
   },
   created: function () {
+    this.channels = this.dataPreparation(this.chPData)
     let date = new Date()
     for (let channel of this.channels) {
       for (let program of channel.programs) {
@@ -208,12 +177,30 @@ export default {
       let date = new Date()
       this.now = date.valueOf()
     },
+    changeStarred (date) {
+      for (let channel of this.channels) {
+        if (channel.channel_id === date.channel_id) {
+          channel.starred = !channel.starred
+        }
+      }
+    },
     changeDataInPL (key, date) {
       this.pressed = key
       this.dateForSample = date
     },
     changeTimeInPL (time) {
       this.timeForSample = time
+    },
+    dataPreparation (channels) {
+      let result = []
+      for (let channel of channels) {
+        let data = {}
+        data = channel
+        data.starred = false
+        data.hidden = false
+        result.push(data)
+      }
+      return result
     },
     getDayName: function (num) {
       switch (num) {
@@ -276,6 +263,8 @@ export default {
             data.channel_id = channel.channel_id
             data.channel_icon = channel.channel_icon
             data.channel_name = channel.channel_name
+            data.starred = channel.starred
+            data.hidden = channel.hidden
             data.program_start = program.program_start
             data.program_end = program.program_end
             data.program_name = program.program_name
@@ -319,6 +308,8 @@ export default {
           data.channel_id = channel.channel_id
           data.channel_icon = channel.channel_icon
           data.channel_name = channel.channel_name
+          data.starred = channel.starred
+          data.hidden = channel.hidden
           data.programs = programs
           result.push(data)
         }
@@ -373,7 +364,6 @@ export default {
   background: lightgoldenrodyellow;
   padding: 5px 20px;
   margin: 5px 0px;
-  margin-top: 56px;
   border-radius: 10px;
   display: flex;
   flex-wrap: wrap;
@@ -389,6 +379,12 @@ export default {
 .form-check {
   margin-left: 5px;
   margin-right: 5px;
+}
+.form-check-label {
+  font-size: 70%;
+}
+a {
+  font-size: 90%;
 }
 span {
   font-size: small;

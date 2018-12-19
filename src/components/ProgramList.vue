@@ -2,7 +2,8 @@
   <div>
     <div class="dateList">
       <div class="date" v-for="(date, key) in dateList" :key="key">
-        <b-button :pressed="key === pressed" @click="changeDataInPL(key, dateList[key])" variant="outline-primary" size="sm">
+        <b-button :pressed="key === pressed" @click="changeDataInPL(key, dateList[key])"
+                  variant="outline-primary" size="sm">
           {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">
           {{'за '+timeForSample.name}}</b-badge>
         </b-button>
@@ -17,17 +18,26 @@
       </div>
     </div>
     <div class="list">
-      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in channels" :key="channel.channel_id">
+      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in channels"
+           :key="channel.channel_id">
           <div class="channel_header">
+            <div class="star">
+              <i :class="checkStar(channel)" @click="changeStarred(channel)"></i>
+            </div>
             <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
             <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
             <div class="channel_name">{{channel.channel_name}}</div>
           </div>
-          <div class="channel_text" :class="{past: now>program.program_end, current: now>program.program_start && now<program.program_end}" v-for="program in channel.programs" :key="program.program_start">
-            <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">{{timeConverter(program.program_start)}}</div>
+          <div class="channel_text" :class="{past: now>program.program_end, current: now>program.program_start
+           && now<program.program_end}" v-for="program in channel.programs" :key="program.program_start">
+            <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">
+              {{timeConverter(program.program_start)}}</div>
             <div v-else class="channel_time">{{timeConverter(program.program_start)}}</div>
-            <div v-if="program.program_description" v-b-popover.hover="program.program_description" title="Описание"> {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)" :style="{color:checkColor(program)}"></i></div>
-            <div v-else> {{program.program_name + " "}} <i v-if="program.program_category" :class="checkLabel(program)" :style="{color:checkColor(program)}"></i></div>
+            <div v-if="program.program_description" v-b-popover.hover="program.program_description" title="Описание">
+              {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)"
+                                                :style="{color:checkColor(program)}"></i></div>
+            <div v-else> {{program.program_name + " "}} <i v-if="program.program_category" :class="checkLabel(program)"
+                                                           :style="{color:checkColor(program)}"></i></div>
           </div>
       </div>
     </div>
@@ -44,6 +54,16 @@ export default {
     }
   },
   methods: {
+    changeStarred (channel) {
+      this.$emit('changeStarred', channel)
+    },
+    checkStar (channel) {
+      if (channel.starred === true) {
+        return 'fas fa-star'
+      } else {
+        return 'far fa-star'
+      }
+    },
     getDayName: function (num) {
       switch (num) {
         case 1:
@@ -98,6 +118,9 @@ export default {
       }
       return ''
     }
+  },
+  computed: {
+
   }
 }
 </script>
@@ -134,6 +157,17 @@ div {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
+  padding-right: 5px;
+  padding-left: 5px;
+  margin-bottom: 5px;
+}
+.star {
+  margin-top: 5px;
+  font-size: 120%;
+  color: white;
+}
+.star:hover {
+  color: gold;
 }
 .channel_header {
   display: flex;
@@ -153,6 +187,10 @@ div {
 }
 .channel_text {
   display: flex;
+}
+.channel_text:last-child {
+  display: flex;
+  margin-bottom: 10px;
 }
 .past {
   color: #888;
