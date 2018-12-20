@@ -171,6 +171,7 @@ export default {
         {start: 43200000, end: 64800000, name: 'день'},
         {start: 64800000, end: 86400000, name: 'вечер'},
         {start: 86400000, end: 102400000, name: 'ночь'},
+        {start: 18000000, end: 102400000, name: 'сейчас'},
         {start: 18000000, end: 102400000, name: 'сутки'}
       ]
     }
@@ -248,7 +249,11 @@ export default {
       this.allChannels = this.allChannels.slice(0)
     },
     changeTimeInPL (time) {
+      if (time.name === 'сейчас') {
+        time.start = this.now - this.dateForSample.ms
+      }
       this.timeForSample = time
+      console.dir(time)
     },
     dataPreparation (channels) {
       let result = []
@@ -395,7 +400,7 @@ export default {
         let data = {}
         let programs = []
         for (let program of channel.programs) {
-          if ((program.program_start >= (date.valueOf() + this.timeForSample.start)) &&
+          if ((program.program_end > (date.valueOf() + this.timeForSample.start)) &&
             (program.program_start < date.valueOf() + this.timeForSample.end)) {
             programs.push(program)
           }

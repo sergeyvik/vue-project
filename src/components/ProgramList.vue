@@ -5,7 +5,7 @@
         <b-button :pressed="key === pressed" @click="changeDataInPL(key, dateList[key])"
                   variant="outline-primary" size="sm">
           {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">
-          {{'за '+timeForSample.name}}</b-badge>
+          {{timeForSample.name}}</b-badge>
         </b-button>
         <b-dropdown v-if="key===pressed" :pressed="true" right size="sm" variant="primary">
           <b-dropdown-item @click="changeTimeInPL(timeList[0])"><span>утро  05.00-12.00</span></b-dropdown-item>
@@ -13,7 +13,8 @@
           <b-dropdown-item @click="changeTimeInPL(timeList[2])"><span>вечер 18.00-24.00</span></b-dropdown-item>
           <b-dropdown-item @click="changeTimeInPL(timeList[3])"><span>ночь  00.00-05.00</span></b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сутки 00.00-24.00</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сейчас хх.хх-24.00</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[5])"><span>сутки  00.00-24.00</span></b-dropdown-item>
         </b-dropdown>
       </div>
     </div>
@@ -256,4 +257,8 @@ div {
 img {
   padding-right: 5px;
 }
+check-type-program {
+  justify-content: flex-end;
+  align-self: flex-end;
+  }
 </style>
