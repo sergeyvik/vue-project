@@ -75,7 +75,7 @@ export default {
   name: 'App',
   data: function () {
     return {
-      chPData: require('../src/tvp_02.json'),
+      chPData: require('../src/tvp_03.json'),
       allChannels: [],
       channelsGroups: [
         {
@@ -387,11 +387,11 @@ export default {
               }
               break
             default:
-              return result
+              return _.orderBy(result, ['priority'], ['asc'])
           }
         }
       }
-      return result
+      return _.orderBy(result, ['priority'], ['asc'])
     },
     sortedSampleChannels () {
       let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
