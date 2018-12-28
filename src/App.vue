@@ -11,8 +11,6 @@
         <b-navbar-nav>
           <b-nav-item :class="{active: $route.path.match(/^\/fast/)}" :to="'/fast'">Сейчас в эфире</b-nav-item>
           <b-nav-item :class="{active: $route.path.match(/^\/list/)}" :to="'/list'">Программа ТВ</b-nav-item>
-          <b-nav-item :class="{active: $route.path.match(/^\/programs/)}" :to="'/programs'">Тестовая</b-nav-item>
-          <b-nav-item :class="{active: $route.path.match(/^\/setting/)}" :to="'/settings'">Настройки</b-nav-item>
         </b-navbar-nav>
 
         <!-- Right aligned nav items -->
@@ -37,7 +35,8 @@
     </b-navbar>
     <div class="menu">
       <div>
-        <b-dropdown size="sm" id="ddown1" :text="channelsGroups[channelsGroupsSelected].name" class="m-md-2" type="dark" variant="primary">
+        <b-dropdown size="sm" id="ddown1" :text="channelsGroups[channelsGroupsSelected].name" class="m-md-2" type="dark"
+                    variant="primary">
           <b-dropdown-item @click="channelsGroupsSelected=3">{{channelsGroups[3].name}}</b-dropdown-item>
           <b-dropdown-item @click="channelsGroupsSelected=4">{{channelsGroups[4].name}}</b-dropdown-item>
           <b-dropdown-item @click="channelsGroupsSelected=5">{{channelsGroups[5].name}}</b-dropdown-item>
@@ -103,7 +102,7 @@ export default {
       ],
       channelsGroupsSelected: 0,
       channelsSample: [],
-      channelsSortType: 'by-id-up',
+      channelsSortType: 'by-name-up',
       category: {
         film: {
           icon: 'fa fa-video',
@@ -176,7 +175,7 @@ export default {
       ]
     }
   },
-  created: function () {
+  created () {
     this.allChannels = this.dataPreparation(this.chPData)
     let date = new Date()
     for (let channel of this.allChannels) {
@@ -193,8 +192,10 @@ export default {
     this.now = date.valueOf()
     let yyyymmdd = this.getDateYYYYMMDD(this.now).toString()
     this.dateForSample.year = Number(yyyymmdd.slice(0, 4))
-    this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)))
-    this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) < 10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)))
+    this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) <
+    10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)))
+    this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) <
+    10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)))
     date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
     this.dateForSample.name = date.getDay()
     this.dateForSample.ms = date.valueOf()
@@ -286,7 +287,7 @@ export default {
           return undefined
       }
     },
-    getDateYYYYMMDD: function (ms) {
+    getDateYYYYMMDD (ms) {
       let result
       if (typeof (ms) === 'number') {
         let date = new Date(ms)
@@ -298,7 +299,7 @@ export default {
       }
       return result
     },
-    pushDayInWeek: function (ms) {
+    pushDayInWeek (ms) {
       let date = new Date(ms)
       let temp = {}
       temp.year = date.getFullYear()
@@ -335,6 +336,17 @@ export default {
         for (let channel of this.allChannels) {
           if (channel.hidden === true) {
             result.push(channel)
+          }
+        }
+      } else {
+        for (let channel of this.allChannels) {
+          if (channel.hidden === false) {
+            for (let id of this.channelsGroups[this.channelsGroupsSelected].id) {
+              if (channel.channel_id === id) {
+                result.push(channel)
+                break
+              }
+            }
           }
         }
       }
@@ -387,11 +399,13 @@ export default {
               }
               break
             default:
-              return _.orderBy(result, ['priority'], ['asc'])
+              if (data.hidden === false) {
+                result.push(data)
+              }
           }
         }
       }
-      return _.orderBy(result, ['priority'], ['asc'])
+      return _.orderBy(result, ['priority', 'channel_name'], ['asc', 'asc'])
     },
     sortedSampleChannels () {
       let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
@@ -436,7 +450,9 @@ export default {
               }
               break
             default:
-              return result
+              if (data.hidden === false) {
+                result.push(data)
+              }
           }
         }
       }
@@ -454,7 +470,7 @@ export default {
         case 'by-id-down':
           return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'desc'])
         default:
-          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc'])
+          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'asc'])
       }
     }
   }
