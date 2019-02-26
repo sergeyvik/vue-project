@@ -61,77 +61,76 @@ export default {
   props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample', 'category', 'now'],
   data () {
     return {
-    }
+    };
   },
   methods: {
     changeStarred (channel) {
-      this.$emit('changeStarred', channel)
+      this.$emit('changeStarred', channel);
     },
     changeReminder (channel, program) {
-      this.$emit('changeReminder', channel, program)
+      this.$emit('changeReminder', channel, program);
     },
     getDayName: function (num) {
       switch (num) {
         case 1:
-          return 'ПН'
+          return 'ПН';
         case 2:
-          return 'ВТ'
+          return 'ВТ';
         case 3:
-          return 'СР'
+          return 'СР';
         case 4:
-          return 'ЧТ'
+          return 'ЧТ';
         case 5:
-          return 'ПТ'
+          return 'ПТ';
         case 6:
-          return 'СБ'
+          return 'СБ';
         case 0:
-          return 'ВС'
+          return 'ВС';
         default:
-          return undefined
+          return undefined;
       }
     },
     timeConverter: function (parameters) {
-      let date = new Date(parameters)
-      let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
-        ? ('0' + date.getMinutes()) : date.getMinutes())
-      return time
+      let date = new Date(parameters);
+      return ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
+        ? ('0' + date.getMinutes()) : date.getMinutes());
     },
     changeDataInPL (key, date) {
-      this.$emit('changeDataInPL', key, date)
+      this.$emit('changeDataInPL', key, date);
     },
     changeHidden (channel) {
-      this.$emit('changeHidden', channel)
+      this.$emit('changeHidden', channel);
     },
     changeTimeInPL (time) {
-      this.$emit('changeTimeInPL', time)
+      this.$emit('changeTimeInPL', time);
     },
     getProgramClassName (program) {
       if (program.program_category === 'Спорт') {
-        return 'sport'
+        return 'sport';
       }
-      return ''
+      return '';
     },
     checkColor (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].color
+          return this.category[data].color;
         }
       }
-      return ''
+      return '';
     },
     checkLabel (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].icon
+          return this.category[data].icon;
         }
       }
-      return ''
+      return '';
     }
   },
   computed: {
 
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

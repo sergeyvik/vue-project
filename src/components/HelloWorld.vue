@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import ProgramList from './ProgramList'
+import ProgramList from './ProgramList';
 export default {
   name: 'HelloWorld',
   components: {ProgramList},
@@ -17,9 +17,9 @@ export default {
     return {
       msg: 'Welcome to Your Vue.js App',
       num: 78890768
-    }
+    };
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

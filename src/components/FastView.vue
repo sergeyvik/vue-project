@@ -38,38 +38,38 @@ export default {
     return {
       currentProgramList: [],
       temp: []
-    }
+    };
   },
   methods: {
     timeConverter: function (parameters) {
-      let date = new Date(parameters)
+      let date = new Date(parameters);
       let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
-        ? ('0' + date.getMinutes()) : date.getMinutes())
-      return time
+        ? ('0' + date.getMinutes()) : date.getMinutes());
+      return time;
     },
     changeStarred (channel) {
-      this.$emit('changeStarred', channel)
+      this.$emit('changeStarred', channel);
     },
     checkColor (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].color
+          return this.category[data].color;
         }
       }
-      return ''
+      return '';
     },
     checkLabel (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].icon
+          return this.category[data].icon;
         }
       }
-      return ''
+      return '';
     }
   },
   computed: {
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

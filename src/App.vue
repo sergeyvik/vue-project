@@ -69,8 +69,10 @@
 </template>
 
 <script>
-import _ from 'lodash'
+import _ from 'lodash';
 /* import moment from 'moment' */
+import axios from 'axios';
+
 export default {
   name: 'App',
   data: function () {
@@ -174,53 +176,71 @@ export default {
         {start: 18000000, end: 102400000, name: 'сейчас'},
         {start: 18000000, end: 102400000, name: 'сутки'}
       ]
-    }
+    };
   },
-  created: function () {
-    this.allChannels = this.dataPreparation(this.chPData)
-    let date = new Date()
+  created: async function () {
+    axios.get('http://localhost:3000/test2')
+      .then((response) => {
+        // handle success
+        console.log(response.data);
+        this.chPData = response.data;
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      });
+
+    /*
+    try {
+      this.chPData = await axios.get('http://localhost:3000/test2').data;
+    } catch (e) {
+      console.log(e);
+    }
+    */
+    this.allChannels = this.dataPreparation(this.chPData);
+    let date = new Date();
     for (let channel of this.allChannels) {
       for (let program of channel.programs) {
         if (this.dateList.length === 0) {
-          this.pushDayInWeek(program.program_start)
+          this.pushDayInWeek(program.program_start);
         } else if (this.getDateYYYYMMDD(this.dateList[this.dateList.length - 1].ms) <
           this.getDateYYYYMMDD(program.program_start - 18000000)) {
-          this.pushDayInWeek(program.program_start)
+          this.pushDayInWeek(program.program_start);
         }
       }
     }
-    setInterval(this.actualTime, 10000)
-    this.now = date.valueOf()
-    let yyyymmdd = this.getDateYYYYMMDD(this.now).toString()
-    this.dateForSample.year = Number(yyyymmdd.slice(0, 4))
-    this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)))
-    this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) < 10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)))
-    date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
-    this.dateForSample.name = date.getDay()
-    this.dateForSample.ms = date.valueOf()
+    setInterval(this.actualTime, 10000);
+    this.now = date.valueOf();
+    let yyyymmdd = this.getDateYYYYMMDD(this.now).toString();
+    this.dateForSample.year = Number(yyyymmdd.slice(0, 4));
+    this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)));
+    this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) < 10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)));
+    date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day);
+    this.dateForSample.name = date.getDay();
+    this.dateForSample.ms = date.valueOf();
     for (let i = 0; i < this.dateList.length; i++) {
       if (this.dateList[i].ms === this.dateForSample.ms) {
-        this.pressed = i
+        this.pressed = i;
       }
     }
   },
   methods: {
     actualTime () {
-      let date = new Date()
-      this.now = date.valueOf()
+      let date = new Date();
+      this.now = date.valueOf();
     },
     changeHidden (data) {
       for (let channel of this.allChannels) {
         if (channel.channel_id === data.channel_id) {
-          channel.hidden = !channel.hidden
-          break
+          channel.hidden = !channel.hidden;
+          break;
         }
       }
-      this.allChannels = this.allChannels.slice(0)
+      this.allChannels = this.allChannels.slice(0);
     },
     changeDataInPL (key, date) {
-      this.pressed = key
-      this.dateForSample = date
+      this.pressed = key;
+      this.dateForSample = date;
     },
     changeReminder (channelReminder, programReminder) {
       for (let channel of this.allChannels) {
@@ -228,12 +248,12 @@ export default {
           for (let program of channel.programs) {
             if (program.program_start === programReminder.program_start) {
               if (program.reminder) {
-                program.reminder = !program.reminder
+                program.reminder = !program.reminder;
               } else {
-                program.reminder = true
+                program.reminder = true;
               }
-              this.allChannels = this.allChannels.slice(0)
-              return
+              this.allChannels = this.allChannels.slice(0);
+              return;
             }
           }
         }
@@ -242,223 +262,223 @@ export default {
     changeStarred (data) {
       for (let channel of this.allChannels) {
         if (channel.channel_id === data.channel_id) {
-          channel.starred = !channel.starred
-          break
+          channel.starred = !channel.starred;
+          break;
         }
       }
-      this.allChannels = this.allChannels.slice(0)
+      this.allChannels = this.allChannels.slice(0);
     },
     changeTimeInPL (time) {
       if (time.name === 'сейчас') {
-        time.start = this.now - this.dateForSample.ms
+        time.start = this.now - this.dateForSample.ms;
       }
-      this.timeForSample = time
-      console.dir(time)
+      this.timeForSample = time;
+      console.dir(time);
     },
     dataPreparation (channels) {
-      let result = []
+      let result = [];
       for (let channel of channels) {
-        let data = {}
-        data = channel
-        data.starred = false
-        data.hidden = false
-        result.push(data)
+        let data = {};
+        data = channel;
+        data.starred = false;
+        data.hidden = false;
+        result.push(data);
       }
-      return result
+      return result;
     },
     getDayName: function (num) {
       switch (num) {
         case 1:
-          return 'ПН'
+          return 'ПН';
         case 2:
-          return 'ВТ'
+          return 'ВТ';
         case 3:
-          return 'СР'
+          return 'СР';
         case 4:
-          return 'ЧТ'
+          return 'ЧТ';
         case 5:
-          return 'ПТ'
+          return 'ПТ';
         case 6:
-          return 'СБ'
+          return 'СБ';
         case 0:
-          return 'ВС'
+          return 'ВС';
         default:
-          return undefined
+          return undefined;
       }
     },
     getDateYYYYMMDD: function (ms) {
-      let result
+      let result;
       if (typeof (ms) === 'number') {
-        let date = new Date(ms)
-        let temp = {}
-        temp.year = date.getFullYear().toString()
-        temp.month = ((date.getMonth() + 1) < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth() + 1)
-        temp.day = (date.getDate() < 10) ? ('0' + date.getDate()) : date.getDate()
-        result = Number(temp.year + temp.month + temp.day)
+        let date = new Date(ms);
+        let temp = {};
+        temp.year = date.getFullYear().toString();
+        temp.month = ((date.getMonth() + 1) < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth() + 1);
+        temp.day = (date.getDate() < 10) ? ('0' + date.getDate()) : date.getDate();
+        result = Number(temp.year + temp.month + temp.day);
       }
-      return result
+      return result;
     },
     pushDayInWeek: function (ms) {
-      let date = new Date(ms)
-      let temp = {}
-      temp.year = date.getFullYear()
-      temp.month = date.getMonth() + 1
-      temp.day = date.getDate()
-      temp.name = date.getDay()
-      date = new Date(temp.year, temp.month - 1, temp.day)
-      temp.ms = date.valueOf()
+      let date = new Date(ms);
+      let temp = {};
+      temp.year = date.getFullYear();
+      temp.month = date.getMonth() + 1;
+      temp.day = date.getDate();
+      temp.name = date.getDay();
+      date = new Date(temp.year, temp.month - 1, temp.day);
+      temp.ms = date.valueOf();
       if (temp.month < 10) {
-        temp.month = '0' + temp.month
+        temp.month = '0' + temp.month;
       }
       if (temp.day < 10) {
-        temp.day = '0' + temp.day
+        temp.day = '0' + temp.day;
       }
-      this.dateList.push(temp)
+      this.dateList.push(temp);
     }
   },
   computed: {
     channels () {
-      let result = []
+      let result = [];
       if (this.channelsGroupsSelected === 0) {
         for (let channel of this.allChannels) {
           if (channel.hidden === false) {
-            result.push(channel)
+            result.push(channel);
           }
         }
       } else if (this.channelsGroupsSelected === 1) {
         for (let channel of this.allChannels) {
           if (channel.starred === true) {
-            result.push(channel)
+            result.push(channel);
           }
         }
       } else if (this.channelsGroupsSelected === 2) {
         for (let channel of this.allChannels) {
           if (channel.hidden === true) {
-            result.push(channel)
+            result.push(channel);
           }
         }
       }
-      return result
+      return result;
     },
     currentProgram () {
-      let result = []
+      let result = [];
       for (let channel of this.channels) {
-        let data = {}
-        let counter = 0
+        let data = {};
+        let counter = 0;
         for (let program of channel.programs) {
           if (program.program_start <= this.now && program.program_end > this.now) {
-            data.channel_id = channel.channel_id
-            data.channel_icon = channel.channel_icon
-            data.channel_name = channel.channel_name
-            data.starred = channel.starred
-            data.hidden = channel.hidden
-            data.program_start = program.program_start
-            data.program_end = program.program_end
-            data.program_name = program.program_name
-            data.program_description = program.program_description
-            data.program_category = program.program_category
-            data.program_rating = program.program_rating
-            counter++
-            break
+            data.channel_id = channel.channel_id;
+            data.channel_icon = channel.channel_icon;
+            data.channel_name = channel.channel_name;
+            data.starred = channel.starred;
+            data.hidden = channel.hidden;
+            data.program_start = program.program_start;
+            data.program_end = program.program_end;
+            data.program_name = program.program_name;
+            data.program_description = program.program_description;
+            data.program_category = program.program_category;
+            data.program_rating = program.program_rating;
+            counter++;
+            break;
           }
         }
         if (counter > 0) {
           if (data.starred === true && data.hidden === false) {
-            data.priority = 1
+            data.priority = 1;
           } else if (data.hidden === false) {
-            data.priority = 2
+            data.priority = 2;
           } else {
-            data.priority = 3
+            data.priority = 3;
           }
           switch (this.channelsGroupsSelected) {
             case 0:
               if (data.hidden === false) {
-                result.push(data)
+                result.push(data);
               }
-              break
+              break;
             case 1:
               if (data.starred === true && data.hidden === false) {
-                result.push(data)
+                result.push(data);
               }
-              break
+              break;
             case 2:
               if (data.hidden === true) {
-                result.push(data)
+                result.push(data);
               }
-              break
+              break;
             default:
-              return result
+              return result;
           }
         }
       }
-      return result
+      return result;
     },
     sortedSampleChannels () {
-      let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
-      let result = []
+      let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day);
+      let result = [];
       for (let channel of this.channels) {
-        let data = {}
-        let programs = []
+        let data = {};
+        let programs = [];
         for (let program of channel.programs) {
           if ((program.program_end > (date.valueOf() + this.timeForSample.start)) &&
             (program.program_start < date.valueOf() + this.timeForSample.end)) {
-            programs.push(program)
+            programs.push(program);
           }
         }
         if (programs.length > 0) {
-          data.channel_id = channel.channel_id
-          data.channel_icon = channel.channel_icon
-          data.channel_name = channel.channel_name
-          data.starred = channel.starred
-          data.hidden = channel.hidden
-          data.programs = programs
+          data.channel_id = channel.channel_id;
+          data.channel_icon = channel.channel_icon;
+          data.channel_name = channel.channel_name;
+          data.starred = channel.starred;
+          data.hidden = channel.hidden;
+          data.programs = programs;
           if (data.starred === true && data.hidden === false) {
-            data.priority = 1
+            data.priority = 1;
           } else if (data.hidden === false) {
-            data.priority = 2
+            data.priority = 2;
           } else {
-            data.priority = 3
+            data.priority = 3;
           }
           switch (this.channelsGroupsSelected) {
             case 0:
               if (data.hidden === false) {
-                result.push(data)
+                result.push(data);
               }
-              break
+              break;
             case 1:
               if (data.starred === true && data.hidden === false) {
-                result.push(data)
+                result.push(data);
               }
-              break
+              break;
             case 2:
               if (data.hidden === true) {
-                result.push(data)
+                result.push(data);
               }
-              break
+              break;
             default:
-              return result
+              return result;
           }
         }
       }
-      return result
+      return result;
     },
     sortedChannels () {
-      let channels = this.sortedSampleChannels
+      let channels = this.sortedSampleChannels;
       switch (this.channelsSortType) {
         case 'by-name-up':
-          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'asc'])
+          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'asc']);
         case 'by-name-down':
-          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'desc'])
+          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'desc']);
         case 'by-id-up':
-          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc'])
+          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc']);
         case 'by-id-down':
-          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'desc'])
+          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'desc']);
         default:
-          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc'])
+          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc']);
       }
     }
   }
-}
+};
 </script>
 
 <style>
