@@ -71,7 +71,7 @@
 <script>
 import _ from 'lodash';
 /* import moment from 'moment' */
-import axios from 'axios';
+import api from './api';
 
 export default {
   name: 'App',
@@ -179,7 +179,7 @@ export default {
     };
   },
   created: async function () {
-    axios.get('http://localhost:3000/test2')
+    api.get('/test2')
       .then((response) => {
         // handle success
         console.log(response.data);
