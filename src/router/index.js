@@ -1,12 +1,12 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from 'vue';
+import Router from 'vue-router';
 // import HelloWorld from '@/components/HelloWorld'
-import ProgramList from '@/components/ProgramList'
-import FastView from '@/components/FastView'
-import ProgramsView from '@/components/ProgramsView'
-import Settings from '@/components/Settings'
+import ProgramList from '@/components/ProgramList';
+import FastView from '@/components/FastView';
+import ProgramsView from '@/components/ProgramsView';
+import Settings from '@/components/Settings';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
 
@@ -37,4 +37,4 @@ export default new Router({
       component: Settings
     }
   ]
-})
+});

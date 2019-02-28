@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import _ from 'lodash'
+import _ from 'lodash';
 /* import moment from 'moment' */
 export default {
   name: 'App',
@@ -71,30 +71,30 @@ export default {
       timeForSample: {start: 0, end: 84400000, name: 'сутки'},
       now: 1541321000000,
       pressed: null
-    }
+    };
   },
   created: function () {
-    let date = new Date()
+    let date = new Date();
     for (let channel of this.channels) {
       for (let program of channel.programs) {
         if (this.dateList.length === 0) {
-          this.pushDayInWeek(program.program_start)
+          this.pushDayInWeek(program.program_start);
         } else if (this.getDateYYYYMMDD(this.dateList[this.dateList.length - 1].ms) < this.getDateYYYYMMDD(program.program_start)) {
-          this.pushDayInWeek(program.program_start)
+          this.pushDayInWeek(program.program_start);
         }
       }
     }
     /* this.now = date.valueOf() */
-    let yyyymmdd = this.getDateYYYYMMDD(this.now).toString()
-    this.dateForSample.year = Number(yyyymmdd.slice(0, 4))
-    this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)))
-    this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) < 10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)))
-    date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
-    this.dateForSample.name = date.getDay()
-    this.dateForSample.ms = date.valueOf()
+    let yyyymmdd = this.getDateYYYYMMDD(this.now).toString();
+    this.dateForSample.year = Number(yyyymmdd.slice(0, 4));
+    this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)));
+    this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) < 10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)));
+    date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day);
+    this.dateForSample.name = date.getDay();
+    this.dateForSample.ms = date.valueOf();
     for (let i = 0; i < this.dateList.length; i++) {
       if (this.dateList[i].ms === this.dateForSample.ms) {
-        this.pressed = i
+        this.pressed = i;
       }
     }
   },
@@ -102,93 +102,93 @@ export default {
     getDayName: function (num) {
       switch (num) {
         case 1:
-          return 'ПН'
+          return 'ПН';
         case 2:
-          return 'ВТ'
+          return 'ВТ';
         case 3:
-          return 'СР'
+          return 'СР';
         case 4:
-          return 'ЧТ'
+          return 'ЧТ';
         case 5:
-          return 'ПТ'
+          return 'ПТ';
         case 6:
-          return 'СБ'
+          return 'СБ';
         case 0:
-          return 'ВС'
+          return 'ВС';
         default:
-          return undefined
+          return undefined;
       }
     },
     getDateYYYYMMDD: function (ms) {
-      let result
+      let result;
       if (typeof (ms) === 'number') {
-        let date = new Date(ms)
-        let temp = {}
-        temp.year = date.getFullYear().toString()
-        temp.month = ((date.getMonth() + 1) < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth() + 1)
-        temp.day = (date.getDate() < 10) ? ('0' + date.getDate()) : date.getDate()
-        result = Number(temp.year + temp.month + temp.day)
+        let date = new Date(ms);
+        let temp = {};
+        temp.year = date.getFullYear().toString();
+        temp.month = ((date.getMonth() + 1) < 10) ? ('0' + (date.getMonth() + 1)) : (date.getMonth() + 1);
+        temp.day = (date.getDate() < 10) ? ('0' + date.getDate()) : date.getDate();
+        result = Number(temp.year + temp.month + temp.day);
       }
-      return result
+      return result;
     },
     pushDayInWeek: function (ms) {
-      let date = new Date(ms)
-      let temp = {}
-      temp.year = date.getFullYear()
-      temp.month = date.getMonth() + 1
-      temp.day = date.getDate()
-      temp.name = date.getDay()
-      date = new Date(temp.year, temp.month - 1, temp.day)
-      temp.ms = date.valueOf()
+      let date = new Date(ms);
+      let temp = {};
+      temp.year = date.getFullYear();
+      temp.month = date.getMonth() + 1;
+      temp.day = date.getDate();
+      temp.name = date.getDay();
+      date = new Date(temp.year, temp.month - 1, temp.day);
+      temp.ms = date.valueOf();
       if (temp.month < 10) {
-        temp.month = '0' + temp.month
+        temp.month = '0' + temp.month;
       }
       if (temp.day < 10) {
-        temp.day = '0' + temp.day
+        temp.day = '0' + temp.day;
       }
-      this.dateList.push(temp)
+      this.dateList.push(temp);
     }
   },
   computed: {
     sortedSampleChannels () {
-      let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day)
-      let result = []
+      let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day);
+      let result = [];
       for (let channel of this.channels) {
-        let data = {}
-        let programs = []
+        let data = {};
+        let programs = [];
         for (let program of channel.programs) {
           if (((date.valueOf() + this.timeForSample.start) <= program.program_start) &&
             (date.valueOf() + this.timeForSample.end) >= program.program_start) {
-            programs.push(program)
+            programs.push(program);
           }
         }
         if (programs.length > 0) {
-          data.channel_id = channel.channel_id
-          data.channel_icon = channel.channel_icon
-          data.channel_name = channel.channel_name
-          data.programs = programs
-          result.push(data)
+          data.channel_id = channel.channel_id;
+          data.channel_icon = channel.channel_icon;
+          data.channel_name = channel.channel_name;
+          data.programs = programs;
+          result.push(data);
         }
       }
-      return result
+      return result;
     },
     sortedChannels () {
-      let channels = this.sortedSampleChannels
+      let channels = this.sortedSampleChannels;
       switch (this.channelsSortType) {
         case 'by-name-up':
-          return _.orderBy(channels, ['channel_name'], ['asc'])
+          return _.orderBy(channels, ['channel_name'], ['asc']);
         case 'by-name-down':
-          return _.orderBy(channels, ['channel_name'], ['desc'])
+          return _.orderBy(channels, ['channel_name'], ['desc']);
         case 'by-id-up':
-          return _.orderBy(channels, ['channel_id'], ['asc'])
+          return _.orderBy(channels, ['channel_id'], ['asc']);
         case 'by-id-down':
-          return _.orderBy(channels, ['channel_id'], ['desc'])
+          return _.orderBy(channels, ['channel_id'], ['desc']);
         default:
-          return _.orderBy(channels, ['channel_id'], ['asc'])
+          return _.orderBy(channels, ['channel_id'], ['asc']);
       }
     }
   }
-}
+};
 </script>
 
 <style>

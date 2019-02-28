@@ -10,26 +10,26 @@ export default {
   props: ['channels'],
   data () {
     return {
-    }
+    };
   },
   methods: {
     ProgramList: function (parameters) {
-      let channelId = parameters.channelId
-      const list = []
+      let channelId = parameters.channelId;
+      const list = [];
       for (let prog in this.programs) {
-        console.log(prog.channel_id)
-        console.log(prog.channelId)
+        console.log(prog.channel_id);
+        console.log(prog.channelId);
         if (prog.channel_id === channelId) {
-          list.push(prog)
+          list.push(prog);
         }
       }
-      return this.list
+      return this.list;
     }
   },
   computed: {
 
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

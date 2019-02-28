@@ -13,7 +13,7 @@
           <b-dropdown-item @click="changeTimeInPL(timeList[2])"><span>вечер 18.00-24.00</span></b-dropdown-item>
           <b-dropdown-item @click="changeTimeInPL(timeList[3])"><span>ночь  00.00-05.00</span></b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сейчас</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сейчас хх.хх-24.00</span></b-dropdown-item>
           <b-dropdown-item @click="changeTimeInPL(timeList[5])"><span>сутки  00.00-24.00</span></b-dropdown-item>
         </b-dropdown>
       </div>
@@ -43,12 +43,10 @@
             <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">
               {{timeConverter(program.program_start)}}</div>
             <div v-else class="channel_time">{{timeConverter(program.program_start)}}</div>
-            <div class="program_text" v-if="program.program_description" v-b-popover.hover="program.program_description"
-                 :title="program.program_name">
+            <div v-if="program.program_description" v-b-popover.hover="program.program_description" title="Описание">
               {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)"
                                                 :style="{color:checkColor(program)}"></i></div>
-            <div class="program_text" v-else> {{program.program_name + " "}} <i v-if="program.program_category"
-                                                                                :class="checkLabel(program)"
+            <div v-else> {{program.program_name + " "}} <i v-if="program.program_category" :class="checkLabel(program)"
                                                            :style="{color:checkColor(program)}"></i></div>
           </div>
       </div>
@@ -63,77 +61,76 @@ export default {
   props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample', 'category', 'now'],
   data () {
     return {
-    }
+    };
   },
   methods: {
     changeStarred (channel) {
-      this.$emit('changeStarred', channel)
+      this.$emit('changeStarred', channel);
     },
     changeReminder (channel, program) {
-      this.$emit('changeReminder', channel, program)
+      this.$emit('changeReminder', channel, program);
     },
-    getDayName (num) {
+    getDayName: function (num) {
       switch (num) {
         case 1:
-          return 'ПН'
+          return 'ПН';
         case 2:
-          return 'ВТ'
+          return 'ВТ';
         case 3:
-          return 'СР'
+          return 'СР';
         case 4:
-          return 'ЧТ'
+          return 'ЧТ';
         case 5:
-          return 'ПТ'
+          return 'ПТ';
         case 6:
-          return 'СБ'
+          return 'СБ';
         case 0:
-          return 'ВС'
+          return 'ВС';
         default:
-          return undefined
+          return undefined;
       }
     },
-    timeConverter (parameters) {
-      let date = new Date(parameters)
-      let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
-        ? ('0' + date.getMinutes()) : date.getMinutes())
-      return time
+    timeConverter: function (parameters) {
+      let date = new Date(parameters);
+      return ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
+        ? ('0' + date.getMinutes()) : date.getMinutes());
     },
     changeDataInPL (key, date) {
-      this.$emit('changeDataInPL', key, date)
+      this.$emit('changeDataInPL', key, date);
     },
     changeHidden (channel) {
-      this.$emit('changeHidden', channel)
+      this.$emit('changeHidden', channel);
     },
     changeTimeInPL (time) {
-      this.$emit('changeTimeInPL', time)
+      this.$emit('changeTimeInPL', time);
     },
     getProgramClassName (program) {
       if (program.program_category === 'Спорт') {
-        return 'sport'
+        return 'sport';
       }
-      return ''
+      return '';
     },
     checkColor (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].color
+          return this.category[data].color;
         }
       }
-      return ''
+      return '';
     },
     checkLabel (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].icon
+          return this.category[data].icon;
         }
       }
-      return ''
+      return '';
     }
   },
   computed: {
 
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -174,7 +171,7 @@ div {
 }
 .card:hover .star {
   opacity: 1;
-  transition: opacity 0.5s 0.5s;
+  transition: opacity 0.5s 1s;
 }
 .star {
   margin-top: 5px;
@@ -203,19 +200,11 @@ div {
   flex-grow: 1;
 }
 .channel_time {
-  margin: 0px 5px;
-  width: 33px;
-  display: inline-block;
-  vertical-align: top;
+  margin: 0px 10px;
+  display: block;
 }
 .channel_text {
-  display: inline-block;
-  width: 100%;
-}
-.program_text {
-  display: inline-block;
-  width: 75%;
-  vertical-align: top;
+  display: flex;
 }
 .channel_text:hover .bell {
   opacity: 1;
@@ -229,9 +218,6 @@ div {
   font-size: 120%;
   color: silver;
   opacity: 0;
-  display: inline-block;
-  width: 20px;
-  vertical-align: top;
 }
 .bell:hover {
   color: gold;
@@ -241,11 +227,12 @@ div {
   color: gold;
 }
 .channel_text:last-child {
+  display: flex;
   margin-bottom: 10px;
 }
 .card:hover .eye {
   opacity: 1;
-  transition: opacity 0.5s 0.5s;
+  transition: opacity 0.5s 1s;
 }
 .eye {
   margin-top: 5px;

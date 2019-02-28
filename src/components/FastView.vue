@@ -17,15 +17,12 @@
               {{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
             <div v-else>{{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
             <div class="channel_desc" v-if="channel.program_description" v-b-popover.hover="channel.program_description"
-                 :title="program.program_name">{{channel.program_name + ' '}}
+                 title="Описание">{{channel.program_name + ' '}}
                   <i :class="checkLabel(channel)" :style="{color:checkColor(channel)}"></i></div>
             <div class="channel_desc" v-else> {{channel.program_name + ' '}}
                   <i :class="checkLabel(channel)" :style="{color:checkColor(channel)}"></i></div>
             <b-progress class="progress"  height="3px" :value="now-channel.program_start"
                         :max="channel.program_end-channel.program_start"></b-progress>
-          </div>
-          <div class="eye" :class="{eye_active: channel.hidden}">
-            <i class="fa-eye-slash" :class="[channel.hidden?'fas':'far']" @click="changeHidden(channel)"></i>
           </div>
         </div>
       </div>
@@ -41,38 +38,38 @@ export default {
     return {
       currentProgramList: [],
       temp: []
-    }
+    };
   },
   methods: {
-    timeConverter (parameters) {
-      let date = new Date(parameters)
+    timeConverter: function (parameters) {
+      let date = new Date(parameters);
       let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
-        ? ('0' + date.getMinutes()) : date.getMinutes())
-      return time
+        ? ('0' + date.getMinutes()) : date.getMinutes());
+      return time;
     },
     changeStarred (channel) {
-      this.$emit('changeStarred', channel)
+      this.$emit('changeStarred', channel);
     },
     checkColor (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].color
+          return this.category[data].color;
         }
       }
-      return ''
+      return '';
     },
     checkLabel (res) {
       for (let data in this.category) {
         if (this.category[data].name === res.program_category && this.category[data].checked === true) {
-          return this.category[data].icon
+          return this.category[data].icon;
         }
       }
-      return ''
+      return '';
     }
   },
   computed: {
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -109,23 +106,6 @@ export default {
   .star_active {
     opacity: 1;
     color: gold;
-  }
-  .card:hover .eye {
-    opacity: 1;
-    transition: opacity 0.5s 0.5s;
-  }
-  .eye {
-    margin-top: 5px;
-    font-size: 120%;
-    color: silver;
-    opacity: 0;
-  }
-  .eye:hover {
-    color: black;
-  }
-  .eye_active {
-    opacity: 1;
-    color: black;
   }
   .card_header {
     display: flex;

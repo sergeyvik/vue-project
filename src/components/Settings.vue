@@ -53,14 +53,14 @@ export default {
   data () {
     return {
       color: '#e66465'
-    }
+    };
   },
   watch: {
     color (val) {
-      alert(val)
+      alert(val);
     }
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
