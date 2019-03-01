@@ -13,7 +13,7 @@
           <b-dropdown-item @click="changeTimeInPL(timeList[2])"><span>вечер 18.00-24.00</span></b-dropdown-item>
           <b-dropdown-item @click="changeTimeInPL(timeList[3])"><span>ночь  00.00-05.00</span></b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сейчас хх.хх-24.00</span></b-dropdown-item>
+          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сейчас</span></b-dropdown-item>
           <b-dropdown-item @click="changeTimeInPL(timeList[5])"><span>сутки  00.00-24.00</span></b-dropdown-item>
         </b-dropdown>
       </div>
@@ -43,10 +43,12 @@
             <div v-if="program.program_category" :style="{backgroundColor: checkColor(program)}" class="channel_time">
               {{timeConverter(program.program_start)}}</div>
             <div v-else class="channel_time">{{timeConverter(program.program_start)}}</div>
-            <div v-if="program.program_description" v-b-popover.hover="program.program_description" title="Описание">
+            <div class="program_text" v-if="program.program_description" v-b-popover.hover="program.program_description"
+                 title="Описание">
               {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)"
                                                 :style="{color:checkColor(program)}"></i></div>
-            <div v-else> {{program.program_name + " "}} <i v-if="program.program_category" :class="checkLabel(program)"
+            <div class="program_text" v-else> {{program.program_name + " "}} <i v-if="program.program_category"
+                                                                                :class="checkLabel(program)"
                                                            :style="{color:checkColor(program)}"></i></div>
           </div>
       </div>
@@ -70,7 +72,7 @@ export default {
     changeReminder (channel, program) {
       this.$emit('changeReminder', channel, program);
     },
-    getDayName: function (num) {
+    getDayName (num) {
       switch (num) {
         case 1:
           return 'ПН';
@@ -90,10 +92,11 @@ export default {
           return undefined;
       }
     },
-    timeConverter: function (parameters) {
+    timeConverter (parameters) {
       let date = new Date(parameters);
-      return ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
+      let time = ((date.getHours() < 10) ? ('0' + date.getHours()) : date.getHours()) + '.' + ((date.getMinutes() < 10)
         ? ('0' + date.getMinutes()) : date.getMinutes());
+      return time;
     },
     changeDataInPL (key, date) {
       this.$emit('changeDataInPL', key, date);
@@ -171,7 +174,7 @@ div {
 }
 .card:hover .star {
   opacity: 1;
-  transition: opacity 0.5s 1s;
+  transition: opacity 0.5s 0.5s;
 }
 .star {
   margin-top: 5px;
@@ -200,11 +203,19 @@ div {
   flex-grow: 1;
 }
 .channel_time {
-  margin: 0px 10px;
-  display: block;
+  margin: 0px 5px;
+  width: 33px;
+  display: inline-block;
+  vertical-align: top;
 }
 .channel_text {
-  display: flex;
+  display: inline-block;
+  width: 100%;
+}
+.program_text {
+  display: inline-block;
+  width: 75%;
+  vertical-align: top;
 }
 .channel_text:hover .bell {
   opacity: 1;
@@ -218,6 +229,9 @@ div {
   font-size: 120%;
   color: silver;
   opacity: 0;
+  display: inline-block;
+  width: 20px;
+  vertical-align: top;
 }
 .bell:hover {
   color: gold;
@@ -227,12 +241,11 @@ div {
   color: gold;
 }
 .channel_text:last-child {
-  display: flex;
   margin-bottom: 10px;
 }
 .card:hover .eye {
   opacity: 1;
-  transition: opacity 0.5s 1s;
+  transition: opacity 0.5s 0.5s;
 }
 .eye {
   margin-top: 5px;

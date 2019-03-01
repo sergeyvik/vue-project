@@ -50,7 +50,7 @@
       <div class="check-type-program">
         <div class="form-check" v-for="(label, i) in category" :key="i">
           <label class="form-check-label">
-              <input type="checkbox" class="form-check-input" v-model="category[i].checked">
+            <input type="checkbox" class="form-check-input" v-model="category[i].checked">
             <i :class="label.icon" :style="{color: label.color}"></i> {{' ' + label.name + ' '}}
           </label>
         </div>
@@ -72,12 +72,13 @@
 import _ from 'lodash';
 /* import moment from 'moment' */
 import api from './api';
-
 export default {
   name: 'App',
   data: function () {
     return {
-      chPData: require('../src/tvp_02.json'),
+      chPData: require('../src/tvp_04.json'),
+      channelsData: {},
+      channelData: {},
       allChannels: [],
       channelsGroups: [
         {
@@ -179,24 +180,30 @@ export default {
     };
   },
   created: async function () {
-    api.get('/test2')
-      .then((response) => {
-        // handle success
-        console.log(response.data);
-        this.chPData = response.data;
+    if (!this.channelsData[this.dateForSample.ms]) {
+      api.get('/data', {
+        params: {
+          timeFrom: this.dateForSample.ms + this.timeForSample.start,
+          timeUntil: this.dateForSample.ms + this.timeForSample.end
+        }
       })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      });
-
-    /*
-    try {
-      this.chPData = await axios.get('http://localhost:3000/test2').data;
-    } catch (e) {
-      console.log(e);
+        .then((response) => {
+          // handle success
+          // console.log(response.data);
+          this.channelsData[this.dateForSample.ms] = response.data;
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        });
     }
-    */
+    /*
+      try {
+        this.chPData = await axios.get('http://localhost:3000/data').data;
+      } catch (e) {
+        console.log(e);
+      }
+      */
     this.allChannels = this.dataPreparation(this.chPData);
     let date = new Date();
     for (let channel of this.allChannels) {
@@ -204,7 +211,7 @@ export default {
         if (this.dateList.length === 0) {
           this.pushDayInWeek(program.program_start);
         } else if (this.getDateYYYYMMDD(this.dateList[this.dateList.length - 1].ms) <
-          this.getDateYYYYMMDD(program.program_start - 18000000)) {
+            this.getDateYYYYMMDD(program.program_start - 18000000)) {
           this.pushDayInWeek(program.program_start);
         }
       }
@@ -421,7 +428,7 @@ export default {
         let programs = [];
         for (let program of channel.programs) {
           if ((program.program_end > (date.valueOf() + this.timeForSample.start)) &&
-            (program.program_start < date.valueOf() + this.timeForSample.end)) {
+              (program.program_start < date.valueOf() + this.timeForSample.end)) {
             programs.push(program);
           }
         }
@@ -482,60 +489,59 @@ export default {
 </script>
 
 <style>
-.app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  padding: 5px;
-}
-.header {
-}
-
-.header2 {
-  margin-top: 56px;
-}
-.nav {
-  border-radius: 10px;
-  background: lightgoldenrodyellow;
-  align-items: center;
-}
-.footer {
-  background: #007bff;
-  padding: 20px;
-  text-align: center;
-  margin: 5px 0px;
-  border-radius: 10px;
-}
-.menu {
-  background: #bababa;
-  padding: 5px 20px;
-  margin: 5px 0px;
-  border-radius: 10px;
-  display: flex;
-  flex-wrap: wrap;
-}
-.content {
-  background: white;
-  border-radius: 10px;
-}
-.check-type-program {
-  display: flex;
-  flex-wrap: wrap;
-}
-.form-check {
-  margin-left: 5px;
-  margin-right: 5px;
-}
-.form-check-label {
-  font-size: 70%;
-}
-a {
-  font-size: 90%;
-}
-span {
-  font-size: small;
-}
-img {
-  margin: 10px;
+  .app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding: 5px;
+  }
+  .header {
+  }
+  .header2 {
+    margin-top: 56px;
+  }
+  .nav {
+    border-radius: 10px;
+    background: lightgoldenrodyellow;
+    align-items: center;
+  }
+  .footer {
+    background: #007bff;
+    padding: 20px;
+    text-align: center;
+    margin: 5px 0px;
+    border-radius: 10px;
+  }
+  .menu {
+    background: #bababa;
+    padding: 5px 20px;
+    margin: 5px 0px;
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .content {
+    background: white;
+    border-radius: 10px;
+  }
+  .check-type-program {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .form-check {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  .form-check-label {
+    font-size: 70%;
+  }
+  a {
+    font-size: 90%;
+  }
+  span {
+    font-size: small;
+  }
+  img {
+    margin: 10px;
   }
 </style>
