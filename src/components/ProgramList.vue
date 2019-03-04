@@ -2,7 +2,7 @@
   <div>
     <div class="dateList">
       <div class="date" v-for="(date, key) in dateList" :key="key">
-        <b-button :pressed="key === pressed" @click="changeDataInPL(key, dateList[key])"
+        <b-button :pressed="key === pressed" @click="changeDateInPL(key, dateList[key])"
                   variant="outline-primary" size="sm">
           {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">
           {{timeForSample.name}}</b-badge>
@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="list">
-      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in channels"
+      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in channelsDataProcessed"
            :key="channel.channel_id">
           <div class="channel_header">
             <div class="star" :class="{star_active: channel.starred}">
@@ -60,9 +60,18 @@
 
 export default {
   name: 'ProgramList',
-  props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample', 'category', 'now'],
+  props: ['dateList', 'pressed', 'timeForSample', 'category', 'now', 'channelsData', 'dateForSample',
+    'channelsGroupsSelected', 'channelsGroups'],
   data () {
     return {
+      timeList: [
+        {start: 18000000, end: 43200000, name: 'утро'},
+        {start: 43200000, end: 64800000, name: 'день'},
+        {start: 64800000, end: 86400000, name: 'вечер'},
+        {start: 86400000, end: 102400000, name: 'ночь'},
+        {start: 18000000, end: 102400000, name: 'сейчас'},
+        {start: 18000000, end: 102400000, name: 'сутки'}
+      ]
     };
   },
   methods: {
@@ -98,8 +107,8 @@ export default {
         ? ('0' + date.getMinutes()) : date.getMinutes());
       return time;
     },
-    changeDataInPL (key, date) {
-      this.$emit('changeDataInPL', key, date);
+    changeDateInPL (key, date) {
+      this.$emit('changeDateInPL', key, date);
     },
     changeHidden (channel) {
       this.$emit('changeHidden', channel);
@@ -131,7 +140,64 @@ export default {
     }
   },
   computed: {
-
+    channelsDataProcessed () {
+      let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day);
+      let result = [];
+      for (let channel of this.channelsData) {
+        let data = {};
+        let programs = [];
+        for (let program of channel.programs) {
+          if ((program.program_end > (date.valueOf() + this.timeForSample.start)) &&
+            (program.program_start < date.valueOf() + this.timeForSample.end)) {
+            programs.push(program);
+          }
+        }
+        if (programs.length > 0) {
+          data.channel_id = channel.channel_id;
+          data.channel_icon = channel.channel_icon;
+          data.channel_name = channel.channel_name;
+          data.starred = channel.starred;
+          data.hidden = channel.hidden;
+          data.programs = programs;
+          data.priority = channel.priority;
+          switch (this.channelsGroupsSelected) {
+            case 0:
+              if (data.hidden === false) {
+                result.push(data);
+              }
+              break;
+            case 1:
+              if (data.starred === true && data.hidden === false) {
+                result.push(data);
+              }
+              break;
+            case 2:
+              if (data.hidden === true) {
+                result.push(data);
+              }
+              break;
+            case 3:
+              if (this.channelsGroups[3].id.indexOf(data.channel_id) > -1) {
+                result.push(data);
+              }
+              break;
+            case 4:
+              if (this.channelsGroups[4].id.indexOf(data.channel_id) > -1) {
+                result.push(data);
+              }
+              break;
+            case 5:
+              if (this.channelsGroups[5].id.indexOf(data.channel_id) > -1) {
+                result.push(data);
+              }
+              break;
+            default:
+              return result;
+          }
+        }
+      }
+      return result;
+    }
   }
 };
 </script>

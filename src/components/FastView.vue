@@ -36,7 +36,7 @@
 <script>
 export default {
   name: 'FastView',
-  props: ['fastView', 'now', 'category'],
+  props: ['now', 'category', 'channelsData', 'channelsGroupsSelected'],
   data () {
     return {
       currentProgramList: [],
@@ -52,6 +52,9 @@ export default {
     },
     changeStarred (channel) {
       this.$emit('changeStarred', channel);
+    },
+    changeHidden (channel) {
+      this.$emit('changeHidden', channel);
     },
     checkColor (res) {
       for (let data in this.category) {
@@ -71,6 +74,48 @@ export default {
     }
   },
   computed: {
+    fastView () {
+      let result = [];
+      for (let channel of this.channelsData) {
+        let data = {};
+        for (let program of channel.programs) {
+          if (program.program_start <= this.now && program.program_end > this.now) {
+            data.channel_id = channel.channel_id;
+            data.channel_icon = channel.channel_icon;
+            data.channel_name = channel.channel_name;
+            data.starred = channel.starred;
+            data.hidden = channel.hidden;
+            data.program_start = program.program_start;
+            data.program_end = program.program_end;
+            data.program_name = program.program_name;
+            data.program_description = program.program_description;
+            data.program_category = program.program_category;
+            data.program_rating = program.program_rating;
+            break;
+          }
+        }
+        switch (this.channelsGroupsSelected) {
+          case 0:
+            if (data.hidden === false) {
+              result.push(data);
+            }
+            break;
+          case 1:
+            if (data.starred === true && data.hidden === false) {
+              result.push(data);
+            }
+            break;
+          case 2:
+            if (data.hidden === true) {
+              result.push(data);
+            }
+            break;
+          default:
+            return result;
+        }
+      }
+      return result;
+    }
   }
 };
 </script>
@@ -95,7 +140,7 @@ export default {
   }
   .card:hover .star {
     opacity: 1;
-    transition: opacity 0.5s 1s;
+    transition: opacity 0.5s 0.5s;
   }
   .star {
     margin-top: 5px;

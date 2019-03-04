@@ -12,7 +12,8 @@
           <b-nav-item :class="{active: $route.path.match(/^\/fast/)}" :to="'/fast'">Сейчас в эфире</b-nav-item>
           <b-nav-item :class="{active: $route.path.match(/^\/list/)}" :to="'/list'">Программа ТВ</b-nav-item>
           <b-nav-item :class="{active: $route.path.match(/^\/programs/)}" :to="'/programs'">Тестовая</b-nav-item>
-          <b-nav-item :class="{active: $route.path.match(/^\/setting/)}" :to="'/settings'">Настройки</b-nav-item>
+          <!--<b-nav-item :class="{active: $route.path.match(/^\/channel/)}" :to="'/channel'">Канал ТВ</b-nav-item>
+          <b-nav-item :class="{active: $route.path.match(/^\/setting/)}" :to="'/settings'">Настройки</b-nav-item>-->
         </b-navbar-nav>
 
         <!-- Right aligned nav items -->
@@ -58,10 +59,11 @@
     </div>
     <div class="sidebar"></div>
     <div class="content">
-      <router-view :channels="sortedChannels" :fastView="currentProgram" :now="now" :dateList="dateList"
-                   :dateForSample="dateForSample" :pressed="pressed" :timeList="timeList" :timeForSample="timeForSample"
-                   @changeDataInPL="changeDataInPL" @changeTimeInPL="changeTimeInPL" :category="category"
-                   @changeStarred="changeStarred" @changeReminder="changeReminder" @changeHidden="changeHidden">
+      <router-view :now="now" :dateList="dateList" :pressed="pressed" :timeForSample="timeForSample"
+                   @changeDateInPL="changeDateInPL" @changeTimeInPL="changeTimeInPL" :category="category"
+                   @changeStarred="changeStarred" @changeReminder="changeReminder" @changeHidden="changeHidden"
+                   :channelList="channelList" :channelSelected="channelSelected" :channelsGroupsSelected="channelsGroupsSelected"
+                   :channelsData="channelsDataPreparation" :dateForSample="dateForSample" :channelsGroups="channelsGroups">
       </router-view></div>
     <div class="footer">Программа телепередач, 2018</div>
 
@@ -71,24 +73,31 @@
 <script>
 import _ from 'lodash';
 /* import moment from 'moment' */
+// import axios from 'axios';
 import api from './api';
 export default {
   name: 'App',
   data: function () {
     return {
-      chPData: require('../src/tvp_04.json'),
-      channelsData: {},
-      channelData: {},
-      allChannels: [],
+      channelsData: [],
+      userProperties: {
+        starredId: [],
+        hiddenId: [],
+        remindersId: {}
+      },
+      channelList: [],
+      channelSelected: 1,
       channelsGroups: [
         {
           name: 'Все каналы'
         },
         {
-          name: 'Избранные каналы'
+          name: 'Избранные каналы',
+          id: []
         },
         {
-          name: 'Скрытые каналы'
+          name: 'Скрытые каналы',
+          id: []
         },
         {
           name: 'Белорусские каналы',
@@ -105,7 +114,6 @@ export default {
         }
       ],
       channelsGroupsSelected: 0,
-      channelsSample: [],
       channelsSortType: 'by-id-up',
       category: {
         film: {
@@ -168,84 +176,62 @@ export default {
         {text: 'По убыванию ID канала', value: 'by-id-down'}
       ],
       pressed: null,
-      timeForSample: {start: 18000000, end: 102400000, name: 'сутки'},
-      timeList: [
-        {start: 18000000, end: 43200000, name: 'утро'},
-        {start: 43200000, end: 64800000, name: 'день'},
-        {start: 64800000, end: 86400000, name: 'вечер'},
-        {start: 86400000, end: 102400000, name: 'ночь'},
-        {start: 18000000, end: 102400000, name: 'сейчас'},
-        {start: 18000000, end: 102400000, name: 'сутки'}
-      ]
+      timeForSample: {start: 18000000, end: 102400000, name: 'сутки'}
     };
   },
   created: async function () {
-    if (!this.channelsData[this.dateForSample.ms]) {
-      api.get('/data', {
-        params: {
-          timeFrom: this.dateForSample.ms + this.timeForSample.start,
-          timeUntil: this.dateForSample.ms + this.timeForSample.end
+    this.actualTime();
+    let yyyymmdd = this.getDateYYYYMMDD(this.now).toString();
+    this.getDateForSample(yyyymmdd);
+    this.getDateList();
+    console.dir(this.dateList);
+    console.log(this.dateList);
+    api.get('/channels', {
+      params: {
+        startWeek: this.dateList[0].ms + 18000000,
+        endWeek: this.dateList[6].ms + 24 * 60 * 60 * 1000 + 18000000
+      }
+    })
+      .then((response) => {
+        // handle success
+        this.channelsData = response.data;
+        setInterval(this.actualTime, 10000);
+        for (let i = 0; i < this.dateList.length; i++) {
+          if (this.dateList[i].ms === this.dateForSample.ms) {
+            this.pressed = i;
+          }
         }
       })
-        .then((response) => {
-          // handle success
-          // console.log(response.data);
-          this.channelsData[this.dateForSample.ms] = response.data;
-        })
-        .catch(function (error) {
-          // handle error
-          console.log(error);
-        });
-    }
-    /*
-      try {
-        this.chPData = await axios.get('http://localhost:3000/data').data;
-      } catch (e) {
-        console.log(e);
-      }
-      */
-    this.allChannels = this.dataPreparation(this.chPData);
-    let date = new Date();
-    for (let channel of this.allChannels) {
-      for (let program of channel.programs) {
-        if (this.dateList.length === 0) {
-          this.pushDayInWeek(program.program_start);
-        } else if (this.getDateYYYYMMDD(this.dateList[this.dateList.length - 1].ms) <
-            this.getDateYYYYMMDD(program.program_start - 18000000)) {
-          this.pushDayInWeek(program.program_start);
-        }
-      }
-    }
-    setInterval(this.actualTime, 10000);
-    this.now = date.valueOf();
-    let yyyymmdd = this.getDateYYYYMMDD(this.now).toString();
-    this.dateForSample.year = Number(yyyymmdd.slice(0, 4));
-    this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)));
-    this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) < 10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)));
-    date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day);
-    this.dateForSample.name = date.getDay();
-    this.dateForSample.ms = date.valueOf();
-    for (let i = 0; i < this.dateList.length; i++) {
-      if (this.dateList[i].ms === this.dateForSample.ms) {
-        this.pressed = i;
-      }
-    }
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      });
   },
   methods: {
     actualTime () {
       let date = new Date();
       this.now = date.valueOf();
     },
+    actualDayCheck () {
+      let date = new Date();
+      let result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      return result.valueOf();
+    },
     changeHidden (data) {
-      for (let channel of this.allChannels) {
+      for (let channel of this.channelsData) {
         if (channel.channel_id === data.channel_id) {
-          channel.hidden = !channel.hidden;
+          // channel.hidden = !channel.hidden;
+          if (this.channelsGroups[2].id.indexOf(channel.channel_id) > -1) {
+            this.channelsGroups[2].id.splice(this.channelsGroups[2].id.indexOf(channel.channel_id), 1);
+          } else {
+            this.channelsGroups[2].id.push(channel.channel_id);
+          }
           break;
         }
       }
-      this.allChannels = this.allChannels.slice(0);
+      this.channelsData = this.channelsData.slice(0);
     },
-    changeDataInPL (key, date) {
+    changeDateInPL (key, date) {
       this.pressed = key;
       this.dateForSample = date;
     },
@@ -267,31 +253,28 @@ export default {
       }
     },
     changeStarred (data) {
-      for (let channel of this.allChannels) {
+      for (let channel of this.channelsData) {
         if (channel.channel_id === data.channel_id) {
-          channel.starred = !channel.starred;
+          // channel.starred = !channel.starred;
+          console.dir(this.channelsGroups[1].id);
+          if (this.channelsGroups[1].id.indexOf(channel.channel_id) > -1) {
+            this.channelsGroups[1].id.splice(this.channelsGroups[1].id.indexOf(channel.channel_id), 1);
+            console.log('True');
+          } else {
+            this.channelsGroups[1].id.push(channel.channel_id);
+            console.log('False');
+          }
           break;
         }
       }
-      this.allChannels = this.allChannels.slice(0);
+      console.dir(this.channelsGroups[1].id);
+      this.channelsData = this.channelsData.slice(0);
     },
     changeTimeInPL (time) {
-      if (time.name === 'сейчас') {
+      if (time.name === 'сейчас' && this.actualDayCheck() === this.dateForSample.ms) {
         time.start = this.now - this.dateForSample.ms;
       }
       this.timeForSample = time;
-      console.dir(time);
-    },
-    dataPreparation (channels) {
-      let result = [];
-      for (let channel of channels) {
-        let data = {};
-        data = channel;
-        data.starred = false;
-        data.hidden = false;
-        result.push(data);
-      }
-      return result;
     },
     getDayName: function (num) {
       switch (num) {
@@ -325,6 +308,27 @@ export default {
       }
       return result;
     },
+    getDateForSample (yyyymmdd) {
+      let date = new Date();
+      this.dateForSample.year = Number(yyyymmdd.slice(0, 4));
+      this.dateForSample.month = Number((yyyymmdd.slice(4, 6)) < 10 ? ('0' + (yyyymmdd.slice(4, 6))) : (yyyymmdd.slice(4, 6)));
+      this.dateForSample.day = Number((yyyymmdd.slice(6, 8)) < 10 ? ('0' + (yyyymmdd.slice(6, 8))) : (yyyymmdd.slice(6, 8)));
+      date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day);
+      this.dateForSample.name = date.getDay();
+      this.dateForSample.ms = date.valueOf();
+    },
+    getDateList () {
+      let ms = 0;
+      if (this.dateForSample.name === 0) {
+        ms = this.dateForSample.ms - 6 * 24 * 60 * 60 * 1000;
+      } else {
+        ms = this.dateForSample.ms - (this.dateForSample.name - 1) * 24 * 60 * 60 * 1000;
+      }
+      for (let i = 1; i <= 7; i++) {
+        this.pushDayInWeek(ms);
+        ms += 24 * 60 * 60 * 1000;
+      }
+    },
     pushDayInWeek: function (ms) {
       let date = new Date(ms);
       let temp = {};
@@ -344,145 +348,29 @@ export default {
     }
   },
   computed: {
-    channels () {
+    channelsDataPreparation () {
       let result = [];
-      if (this.channelsGroupsSelected === 0) {
-        for (let channel of this.allChannels) {
-          if (channel.hidden === false) {
-            result.push(channel);
-          }
+      for (let channel of this.channelsData) {
+        if (this.channelsGroups[1].id.indexOf(channel.channel_id) > -1) {
+          channel.starred = true;
+        } else {
+          channel.starred = false;
         }
-      } else if (this.channelsGroupsSelected === 1) {
-        for (let channel of this.allChannels) {
-          if (channel.starred === true) {
-            result.push(channel);
-          }
+        if (this.channelsGroups[2].id.indexOf(channel.channel_id) > -1) {
+          channel.hidden = true;
+        } else {
+          channel.hidden = false;
         }
-      } else if (this.channelsGroupsSelected === 2) {
-        for (let channel of this.allChannels) {
-          if (channel.hidden === true) {
-            result.push(channel);
-          }
+        if (channel.starred === true && channel.hidden === false) {
+          channel.priority = 1;
+        } else if (channel.hidden === false) {
+          channel.priority = 2;
+        } else {
+          channel.priority = 3;
         }
+        result.push(channel);
       }
-      return result;
-    },
-    currentProgram () {
-      let result = [];
-      for (let channel of this.channels) {
-        let data = {};
-        let counter = 0;
-        for (let program of channel.programs) {
-          if (program.program_start <= this.now && program.program_end > this.now) {
-            data.channel_id = channel.channel_id;
-            data.channel_icon = channel.channel_icon;
-            data.channel_name = channel.channel_name;
-            data.starred = channel.starred;
-            data.hidden = channel.hidden;
-            data.program_start = program.program_start;
-            data.program_end = program.program_end;
-            data.program_name = program.program_name;
-            data.program_description = program.program_description;
-            data.program_category = program.program_category;
-            data.program_rating = program.program_rating;
-            counter++;
-            break;
-          }
-        }
-        if (counter > 0) {
-          if (data.starred === true && data.hidden === false) {
-            data.priority = 1;
-          } else if (data.hidden === false) {
-            data.priority = 2;
-          } else {
-            data.priority = 3;
-          }
-          switch (this.channelsGroupsSelected) {
-            case 0:
-              if (data.hidden === false) {
-                result.push(data);
-              }
-              break;
-            case 1:
-              if (data.starred === true && data.hidden === false) {
-                result.push(data);
-              }
-              break;
-            case 2:
-              if (data.hidden === true) {
-                result.push(data);
-              }
-              break;
-            default:
-              return result;
-          }
-        }
-      }
-      return result;
-    },
-    sortedSampleChannels () {
-      let date = new Date(this.dateForSample.year, this.dateForSample.month - 1, this.dateForSample.day);
-      let result = [];
-      for (let channel of this.channels) {
-        let data = {};
-        let programs = [];
-        for (let program of channel.programs) {
-          if ((program.program_end > (date.valueOf() + this.timeForSample.start)) &&
-              (program.program_start < date.valueOf() + this.timeForSample.end)) {
-            programs.push(program);
-          }
-        }
-        if (programs.length > 0) {
-          data.channel_id = channel.channel_id;
-          data.channel_icon = channel.channel_icon;
-          data.channel_name = channel.channel_name;
-          data.starred = channel.starred;
-          data.hidden = channel.hidden;
-          data.programs = programs;
-          if (data.starred === true && data.hidden === false) {
-            data.priority = 1;
-          } else if (data.hidden === false) {
-            data.priority = 2;
-          } else {
-            data.priority = 3;
-          }
-          switch (this.channelsGroupsSelected) {
-            case 0:
-              if (data.hidden === false) {
-                result.push(data);
-              }
-              break;
-            case 1:
-              if (data.starred === true && data.hidden === false) {
-                result.push(data);
-              }
-              break;
-            case 2:
-              if (data.hidden === true) {
-                result.push(data);
-              }
-              break;
-            default:
-              return result;
-          }
-        }
-      }
-      return result;
-    },
-    sortedChannels () {
-      let channels = this.sortedSampleChannels;
-      switch (this.channelsSortType) {
-        case 'by-name-up':
-          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'asc']);
-        case 'by-name-down':
-          return _.orderBy(channels, ['priority', 'channel_name'], ['asc', 'desc']);
-        case 'by-id-up':
-          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc']);
-        case 'by-id-down':
-          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'desc']);
-        default:
-          return _.orderBy(channels, ['priority', 'channel_id'], ['asc', 'asc']);
-      }
+      return _.orderBy(result, ['priority', 'channel_name'], ['asc', 'asc']);
     }
   }
 };

@@ -1,25 +1,11 @@
 <template>
   <div>
-    <div class="dateList">
-      <div class="date" v-for="(date, key) in dateList" :key="key">
-        <b-button :pressed="key === pressed" @click="changeDateInPL(key, dateList[key])"
-                  variant="outline-primary" size="sm">
-          {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">
-          {{timeForSample.name}}</b-badge>
-        </b-button>
-        <b-dropdown v-if="key===pressed" :pressed="true" right size="sm" variant="primary">
-          <b-dropdown-item @click="changeTimeInPL(timeList[0])"><span>утро  05.00-12.00</span></b-dropdown-item>
-          <b-dropdown-item @click="changeTimeInPL(timeList[1])"><span>день  12.00-18.00</span></b-dropdown-item>
-          <b-dropdown-item @click="changeTimeInPL(timeList[2])"><span>вечер 18.00-24.00</span></b-dropdown-item>
-          <b-dropdown-item @click="changeTimeInPL(timeList[3])"><span>ночь  00.00-05.00</span></b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сейчас</span></b-dropdown-item>
-          <b-dropdown-item @click="changeTimeInPL(timeList[5])"><span>сутки  00.00-24.00</span></b-dropdown-item>
-        </b-dropdown>
-      </div>
+    <div>
+        <b-form-select v-model="channelSelected" :options="channelSelected" class="mt-3" />
+      <div class="mt-3">Selected: <strong>{{ channelSelected }}</strong></div>
     </div>
     <div class="list">
-      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in programsView"
+      <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in oneProgram"
            :key="channel.channel_id">
         <div class="channel_header">
           <div class="star" :class="{star_active: channel.starred}">
@@ -44,55 +30,52 @@
             {{timeConverter(program.program_start)}}</div>
           <div v-else class="channel_time">{{timeConverter(program.program_start)}}</div>
           <div class="program_text" v-if="program.program_description" v-b-popover.hover="program.program_description"
-                title="Описание">
-             {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)"
-                                               :style="{color:checkColor(program)}"></i></div>
-           <div class="program_text" v-else> {{program.program_name + " "}} <i v-if="program.program_category"
-                                                                               :class="checkLabel(program)"
-                                                                               :style="{color:checkColor(program)}"></i></div>
-         </div>
-       </div>
-     </div>
-   </div>
- </template>
+               title="Описание">
+            {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)"
+                                              :style="{color:checkColor(program)}"></i></div>
+          <div class="program_text" v-else> {{program.program_name + " "}} <i v-if="program.program_category"
+                                                                              :class="checkLabel(program)"
+                                                                              :style="{color:checkColor(program)}"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <script>
 import api from '../api';
 export default {
-  name: 'ProgramList',
-  props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample', 'category', 'now', 'prepareData'],
+  name: 'OneProgram',
+  props: ['dateList', 'now', 'oneProgram', 'channelList', 'channelSelected'],
   data () {
     return {
-      programsView: []
+      programView: [],
+      selected: 1
     };
   },
   watch: {
-    dateForSample () {
-      this.apiGetData();
-    },
-    timeForSample () {
-      this.apiGetData();
-    }
   },
   created: async function () {
-    if (this.prepareData.length > 0) {
-      this.programsView = this.prepareData;
+    if (this.oneProgram.length > 0) {
+      this.programView = this.oneProgram;
     } else {
       this.apiGetData();
     }
+    // this.selected = this.channelSelected;
   },
   methods: {
     apiGetData () {
-      api.get('/data', {
+      api.get('/channel', {
         params: {
-          timeFrom: this.dateForSample.ms + this.timeForSample.start,
-          timeUntil: this.dateForSample.ms + this.timeForSample.end
+          id: 1,
+          startWeek: this.dateList[0].ms + 18000000,
+          endWeek: this.dateList[this.dateList.length - 1].ms + 102400000
         }
       })
         .then((response) => {
           // handle success
-          this.programsView = response.data;
-          this.channelsDataUpdate(response.data, this.dateForSample.ms);
+          // this.programView = response.data;
+          // this.channelDataUpdate(response.data, 1);
         })
         .catch(function (error) {
           // handle error
@@ -140,9 +123,6 @@ export default {
     changeTimeInPL (time) {
       this.$emit('changeTimeInPL', time);
     },
-    channelsDataUpdate (data, key) {
-      this.$emit('channelsDataUpdate', data, key);
-    },
     getProgramClassName (program) {
       if (program.program_category === 'Спорт') {
         return 'sport';
@@ -172,7 +152,7 @@ export default {
 };
 </script>
 
- <!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   h1, h2 , h3{
     font-weight: normal;
