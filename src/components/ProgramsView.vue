@@ -1,33 +1,18 @@
 <template>
   <div>
-    <div class="dateList">
-      <div class="date" v-for="(date, key) in dateList" :key="key">
-        <b-button :pressed="key === pressed" @click="changeDateInPL(key, dateList[key])"
-                  variant="outline-primary" size="sm">
-          {{date.day+'.'+date.month+' '+getDayName(date.name)}} <b-badge v-if="key===pressed" variant="light">
-          {{timeForSample.name}}</b-badge>
-        </b-button>
-        <b-dropdown v-if="key===pressed" :pressed="true" right size="sm" variant="primary">
-          <b-dropdown-item @click="changeTimeInPL(timeList[0])"><span>утро  05.00-12.00</span></b-dropdown-item>
-          <b-dropdown-item @click="changeTimeInPL(timeList[1])"><span>день  12.00-18.00</span></b-dropdown-item>
-          <b-dropdown-item @click="changeTimeInPL(timeList[2])"><span>вечер 18.00-24.00</span></b-dropdown-item>
-          <b-dropdown-item @click="changeTimeInPL(timeList[3])"><span>ночь  00.00-05.00</span></b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="changeTimeInPL(timeList[4])"><span>сейчас</span></b-dropdown-item>
-          <b-dropdown-item @click="changeTimeInPL(timeList[5])"><span>сутки  00.00-24.00</span></b-dropdown-item>
-        </b-dropdown>
-      </div>
+    <div>
+      <b-form-select v-model="selected" :options="channelList"/>
     </div>
     <div class="list">
       <div class="card col-12 col-sm-6 col-md-4 b-col-lg-3 col-xl-3" v-for="channel in programsView"
-           :key="channel.channel_id">
+           :key="channel.channel_label">
         <div class="channel_header">
           <div class="star" :class="{star_active: channel.starred}">
             <i class="fa-star" :class="[channel.starred?'fas':'far']" @click="changeStarred(channel)"></i>
           </div>
           <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
           <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
-          <div class="channel_name">{{channel.channel_name}}</div>
+          <div class="channel_name">{{channel.channel_label}}</div>
           <div class="eye" :class="{eye_active: channel.hidden}">
             <i class="fa-eye-slash" :class="[channel.hidden?'fas':'far']" @click="changeHidden(channel)"></i>
           </div>
@@ -44,86 +29,45 @@
             {{timeConverter(program.program_start)}}</div>
           <div v-else class="channel_time">{{timeConverter(program.program_start)}}</div>
           <div class="program_text" v-if="program.program_description" v-b-popover.hover="program.program_description"
-                title="Описание">
-             {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)"
-                                               :style="{color:checkColor(program)}"></i></div>
-           <div class="program_text" v-else> {{program.program_name + " "}} <i v-if="program.program_category"
-                                                                               :class="checkLabel(program)"
-                                                                               :style="{color:checkColor(program)}"></i></div>
-         </div>
-       </div>
-     </div>
-   </div>
- </template>
+               title="Описание">
+            {{program.program_name + ' '}} <i v-if="program.program_category" :class="checkLabel(program)"
+                                              :style="{color:checkColor(program)}"></i></div>
+          <div class="program_text" v-else> {{program.program_name + " "}} <i v-if="program.program_category"
+                                                                              :class="checkLabel(program)"
+                                                                              :style="{color:checkColor(program)}"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <script>
-import api from '../api';
 export default {
-  name: 'ProgramList',
-  props: ['channels', 'dateList', 'dateForSample', 'pressed', 'timeList', 'timeForSample', 'category', 'now', 'prepareData'],
+  name: 'ProgramsView',
+  props: ['now', 'dateList', 'channelList', 'channelsData', 'id', 'category'],
   data () {
     return {
-      programsView: []
+      programView: [],
+      selected: null
     };
   },
   watch: {
-    dateForSample () {
-      this.apiGetData();
-    },
-    timeForSample () {
-      this.apiGetData();
+    selected () {
+      this.$router.push({name: 'programs', params: {id: this.selected ? this.selected : null}});
     }
   },
-  created: async function () {
-    if (this.prepareData.length > 0) {
-      this.programsView = this.prepareData;
-    } else {
-      this.apiGetData();
+  created: function () {
+    let selected = parseInt(this.id, 10);
+    if (!isNaN(selected) && selected !== undefined) {
+      this.selected = selected;
     }
   },
   methods: {
-    apiGetData () {
-      api.get('/data', {
-        params: {
-          timeFrom: this.dateForSample.ms + this.timeForSample.start,
-          timeUntil: this.dateForSample.ms + this.timeForSample.end
-        }
-      })
-        .then((response) => {
-          // handle success
-          this.programsView = response.data;
-          this.channelsDataUpdate(response.data, this.dateForSample.ms);
-        })
-        .catch(function (error) {
-          // handle error
-          console.log(error);
-        });
-    },
     changeStarred (channel) {
       this.$emit('changeStarred', channel);
     },
     changeReminder (channel, program) {
       this.$emit('changeReminder', channel, program);
-    },
-    getDayName (num) {
-      switch (num) {
-        case 1:
-          return 'ПН';
-        case 2:
-          return 'ВТ';
-        case 3:
-          return 'СР';
-        case 4:
-          return 'ЧТ';
-        case 5:
-          return 'ПТ';
-        case 6:
-          return 'СБ';
-        case 0:
-          return 'ВС';
-        default:
-          return undefined;
-      }
     },
     timeConverter (parameters) {
       let date = new Date(parameters);
@@ -139,9 +83,6 @@ export default {
     },
     changeTimeInPL (time) {
       this.$emit('changeTimeInPL', time);
-    },
-    channelsDataUpdate (data, key) {
-      this.$emit('channelsDataUpdate', data, key);
     },
     getProgramClassName (program) {
       if (program.program_category === 'Спорт') {
@@ -164,15 +105,81 @@ export default {
         }
       }
       return '';
+    },
+    getDayName: function (num) {
+      switch (num) {
+        case 0:
+          return 'ПОНЕДЕЛЬНИК';
+        case 1:
+          return 'ВТОРНИК';
+        case 2:
+          return 'СРЕДА';
+        case 3:
+          return 'ЧЕТВЕРГ';
+        case 4:
+          return 'ПЯТНИЦА';
+        case 5:
+          return 'СУББОТА';
+        case 6:
+          return 'ВОСКРЕСЕНЬЕ';
+        default:
+          return undefined;
+      }
     }
   },
   computed: {
-
+    programsView () {
+      let result = [];
+      if (this.selected !== null) {
+        for (let channel of this.channelsData) {
+          if (channel.channel_id === this.selected) {
+            for (let i = 0; i < this.dateList.length; i++) {
+              let data = {};
+              data.channel_id = channel.channel_id;
+              data.channel_icon = channel.channel_icon;
+              data.channel_name = channel.channel_name;
+              data.starred = channel.starred;
+              data.hidden = channel.hidden;
+              data.programs = [];
+              data.priority = channel.priority;
+              data.channel_label = `${this.getDayName(i)} ${this.dateList[i].day}.${this.dateList[i].month}.${this.dateList[i].year}`;
+              result.push(data);
+            }
+            for (let program of channel.programs) {
+              if ((program.program_end > (this.dateList[0].ms + 18000000)) &&
+                (program.program_start < this.dateList[0].ms + 102400000)) {
+                result[0].programs.push(program);
+              } else if ((program.program_end > (this.dateList[1].ms + 18000000)) &&
+                (program.program_start < this.dateList[1].ms + 102400000)) {
+                result[1].programs.push(program);
+              } else if ((program.program_end > (this.dateList[2].ms + 18000000)) &&
+                (program.program_start < this.dateList[2].ms + 102400000)) {
+                result[2].programs.push(program);
+              } else if ((program.program_end > (this.dateList[3].ms + 18000000)) &&
+                (program.program_start < this.dateList[3].ms + 102400000)) {
+                result[3].programs.push(program);
+              } else if ((program.program_end > (this.dateList[4].ms + 18000000)) &&
+                (program.program_start < this.dateList[4].ms + 102400000)) {
+                result[4].programs.push(program);
+              } else if ((program.program_end > (this.dateList[5].ms + 18000000)) &&
+                (program.program_start < this.dateList[5].ms + 102400000)) {
+                result[5].programs.push(program);
+              } else if ((program.program_end > (this.dateList[6].ms + 18000000)) &&
+                (program.program_start < this.dateList[6].ms + 102400000)) {
+                result[6].programs.push(program);
+              }
+            }
+            break;
+          }
+        }
+      }
+      return result;
+    }
   }
 };
 </script>
 
- <!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   h1, h2 , h3{
     font-weight: normal;
@@ -232,7 +239,7 @@ export default {
   }
   .channel_name {
     display: flex;
-    font-size: medium;
+    font-size: small;
     font-weight: bold;
     align-self: center;
     justify-content: center;

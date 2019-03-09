@@ -30,7 +30,8 @@ export default new Router({
     {
       path: '/programs',
       name: 'programs',
-      component: ProgramsView
+      component: ProgramsView,
+      props: true
     },
     {
       path: '/channel',

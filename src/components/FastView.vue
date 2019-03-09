@@ -11,7 +11,7 @@
             <img v-if="channel.channel_icon" :src="channel.channel_icon" alt="Знак ТВ">
             <img v-else src="../assets/icon_tv.png" alt="Знак ТВ">
           </div>
-          <div class="channel_header">
+          <div class="channel_header" @click="toChannel(channel.channel_id)">
             <div class="channel_name">{{channel.channel_name}}</div>
             <div v-if="channel.program_category" :style="{backgroundColor: checkColor(channel)}">
               {{timeConverter(channel.program_start)}}  -  {{timeConverter(channel.program_end)}}</div>
@@ -71,6 +71,10 @@ export default {
         }
       }
       return '';
+    },
+    toChannel (id) {
+      this.$emit('selectChannel', id);
+      this.$router.push({name: 'programs', params: {id}});
     }
   },
   computed: {
