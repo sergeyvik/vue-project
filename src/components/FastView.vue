@@ -34,9 +34,10 @@
 </template>
 
 <script>
+import _ from 'lodash';
 export default {
   name: 'FastView',
-  props: ['now', 'category', 'channelsData', 'channelsGroupsSelected'],
+  props: ['now', 'category', 'channelsData', 'channelsGroupsSelected', 'channelsGroups'],
   data () {
     return {
       currentProgramList: [],
@@ -89,6 +90,7 @@ export default {
             data.channel_name = channel.channel_name;
             data.starred = channel.starred;
             data.hidden = channel.hidden;
+            data.priority = channel.priority;
             data.program_start = program.program_start;
             data.program_end = program.program_end;
             data.program_name = program.program_name;
@@ -114,11 +116,26 @@ export default {
               result.push(data);
             }
             break;
+          case 3:
+            if (this.channelsGroups[3].id.indexOf(data.channel_id) > -1 && data.hidden === false) {
+              result.push(data);
+            }
+            break;
+          case 4:
+            if (this.channelsGroups[4].id.indexOf(data.channel_id) > -1 && data.hidden === false) {
+              result.push(data);
+            }
+            break;
+          case 5:
+            if (this.channelsGroups[5].id.indexOf(data.channel_id) > -1 && data.hidden === false) {
+              result.push(data);
+            }
+            break;
           default:
             return result;
         }
       }
-      return result;
+      return _.orderBy(result, ['priority', 'channel_name'], ['asc', 'asc']);
     }
   }
 };

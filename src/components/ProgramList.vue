@@ -57,7 +57,7 @@
 </template>
 
 <script>
-
+import _ from 'lodash';
 export default {
   name: 'ProgramList',
   props: ['dateList', 'pressed', 'timeForSample', 'category', 'now', 'channelsData', 'dateForSample',
@@ -158,8 +158,8 @@ export default {
           data.channel_name = channel.channel_name;
           data.starred = channel.starred;
           data.hidden = channel.hidden;
-          data.programs = programs;
           data.priority = channel.priority;
+          data.programs = programs;
           switch (this.channelsGroupsSelected) {
             case 0:
               if (data.hidden === false) {
@@ -177,17 +177,17 @@ export default {
               }
               break;
             case 3:
-              if (this.channelsGroups[3].id.indexOf(data.channel_id) > -1) {
+              if (this.channelsGroups[3].id.indexOf(data.channel_id) > -1 && data.hidden === false) {
                 result.push(data);
               }
               break;
             case 4:
-              if (this.channelsGroups[4].id.indexOf(data.channel_id) > -1) {
+              if (this.channelsGroups[4].id.indexOf(data.channel_id) > -1 && data.hidden === false) {
                 result.push(data);
               }
               break;
             case 5:
-              if (this.channelsGroups[5].id.indexOf(data.channel_id) > -1) {
+              if (this.channelsGroups[5].id.indexOf(data.channel_id) > -1 && data.hidden === false) {
                 result.push(data);
               }
               break;
@@ -196,7 +196,7 @@ export default {
           }
         }
       }
-      return result;
+      return _.orderBy(result, ['priority', 'channel_name'], ['asc', 'asc']);
     }
   }
 };
