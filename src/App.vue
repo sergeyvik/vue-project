@@ -42,7 +42,7 @@
       <b-container fluid>
         <form @submit.stop.prevent="handleSubmit">
           <b-form-input type="text" placeholder="Введите ваш логин" v-model="loginE" />
-          <b-form-input type="text" placeholder="Введите ваш пароль" v-model="passwordE" />
+          <b-form-input type="password" placeholder="Введите ваш пароль" v-model="passwordE" />
           <p class="login-check">{{checkEnter}}</p>
         </form>
       </b-container>
@@ -59,7 +59,7 @@
           <b-form-input type="text" placeholder="Укажите ваше имя" v-model="name" />
           <b-form-input type="text" placeholder="Укажите ваш логин" v-model="login" />
           <p class="login-check">{{checkAnswer}}</p>
-          <b-form-input type="text" placeholder="Укажите ваш пароль" v-model="password" />
+          <b-form-input type="password" placeholder="Укажите ваш пароль" v-model="password" />
           <b-form-input type="text" placeholder="Укажите ваш e-mail" v-model="email" />
         </form>
       </b-container>
@@ -122,8 +122,9 @@
 
 <script>
 import _ from 'lodash';
+import sha1 from 'sha1';
 /* import moment from 'moment' */
-// import axios from 'axios';
+import axios from 'axios';
 import api from './api';
 export default {
   name: 'App',
@@ -141,6 +142,7 @@ export default {
       checkAnswer: null,
       checkEnter: null,
       textSearch: null,
+      textSearchDebounced: null,
       regButton: false,
       channelsData: [],
       remindersId: [],
@@ -241,8 +243,13 @@ export default {
     };
   },
   created: async function () {
+    this.loadToken();
     this.start();
+    this.getUserData();
     this.debouncedCheckLogin = _.debounce(this.checkLogin, 500);
+    this.debouncedSearch = _.debounce(() => {
+      this.textSearchDebounced = this.textSearch;
+    }, 500);
   },
   methods: {
     removeReminderWindow () {
@@ -292,10 +299,13 @@ export default {
         });
     },
     exitButton () {
+      this.deleteToken();
       this.userId = 0;
       this.remindersId = [];
+      this.remindersData = [];
+      this.clearReminders();
       this.channelSelected = null;
-      this.dateList = [];
+      // this.dateList = [];
       this.channelsGroups[1].id = [];
       this.channelsGroups[2].id = [];
     },
@@ -330,51 +340,68 @@ export default {
       this.password = '';
       this.email = '';
     },
-    enterButton () {
-      api.get('/userData', {
+    async enterButton () {
+      const response = await api.post('/login', {
         params: {
           login: this.loginE,
-          password: this.passwordE
-          // login: 'sergey49',
-          // password: 'AzbzTdhfpbz223'
+          password: sha1(this.passwordE)
         }
-      })
-        .then((response) => {
-          // handle success
-          if (response.data === 0) {
-            this.checkEnter = 'Опечатка в логине или пароле!';
-          } else {
-            this.userId = response.data.id;
-            let object = response.data.userData1;
-            for (let elem of object) {
-              for (let num in elem) {
-                if (elem[num].starred === 1) {
-                  this.channelsGroups[1].id.push(Number(num));
-                }
-                if (elem[num].hidden === 1) {
-                  this.channelsGroups[2].id.push(Number(num));
-                }
-              }
+      });
+      if (response.data && response.data.token) {
+        this.saveToken(response.data.token);
+        this.showAut = false;
+        this.loginE = null;
+        this.passwordE = null;
+        this.checkEnter = null;
+        await this.getUserData();
+      } else {
+        this.checkEnter = 'Опечатка в логине или пароле!';
+      }
+    },
+    async getUserData () {
+      const response = await api.get('/userData');
+      if (response && response.data) {
+        this.userId = response.data.id;
+        let object = response.data.userData1;
+        for (let elem of object) {
+          for (let num in elem) {
+            if (elem[num].starred === 1) {
+              this.channelsGroups[1].id.push(Number(num));
             }
-            this.remindersId.push(response.data.userData2);
-            this.showAut = false;
-            this.loginE = '';
-            this.passwordE = '';
+            if (elem[num].hidden === 1) {
+              this.channelsGroups[2].id.push(Number(num));
+            }
           }
-        })
-        .catch(function (error) {
-          // handle error
-          console.log(error);
-        });
+        }
+        this.remindersId = [];
+        this.remindersId.push(response.data.userData2);
+      }
+    },
+    saveToken (token) {
+      localStorage.setItem('jwt', token);
+      axios.defaults.headers.common = {
+        'Authorization': `Bearer ${token}`
+      };
+    },
+    loadToken () {
+      axios.defaults.headers.common = {
+        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+      };
+    },
+    deleteToken () {
+      localStorage.removeItem('jwt');
+      axios.defaults.headers.common = {
+        'Authorization': null
+      };
     },
     registerButton () {
       if (this.login.length > 0 && this.password.length > 0) {
         this.showReg = false;
-        api.get('/userRecord', {
+        api.post('/userRecord', {
           params: {
             name: this.name,
             login: this.login,
-            password: this.password,
+            password: sha1(this.password),
             email: this.email
           }
         })
@@ -384,6 +411,7 @@ export default {
             this.login = '';
             this.password = '';
             this.email = '';
+            this.showAut = true;
           })
           .catch(function (error) {
             // handle error
@@ -714,23 +742,20 @@ export default {
     },
     searchResult () {
       let result = [];
-      if (this.textSearch) {
-        let str1 = this.textSearch.toLowerCase();
-        let str2 = this.textSearch[0].toUpperCase() + str1.substring(1, str1.length);
-        let str3 = this.textSearch.toUpperCase();
-        console.log(str1);
-        console.log(str2);
-        console.log(str3);
+      if (this.textSearchDebounced) {
+        let str1 = this.textSearchDebounced.toLowerCase();
+        let str2 = this.textSearchDebounced[0].toUpperCase() + str1.substring(1, str1.length);
+        let str3 = this.textSearchDebounced.toUpperCase();
         for (let channel of this.channelsData) {
           let data = {};
           let programs = [];
           for (let program of channel.programs) {
-            if (program.program_name.indexOf(this.textSearch) > -1 || program.program_name.indexOf(str1) > -1 ||
+            if (program.program_name.indexOf(this.textSearchDebounced) > -1 || program.program_name.indexOf(str1) > -1 ||
               program.program_name.indexOf(str2) > -1 || program.program_name.indexOf(str3) > -1) {
               programs.push(program);
             }
           }
-          if (programs.length > 0 || channel.channel_name.indexOf(this.textSearch) > -1 ||
+          if (programs.length > 0 || channel.channel_name.indexOf(this.textSearchDebounced) > -1 ||
             channel.channel_name.indexOf(str1) > -1 || channel.channel_name.indexOf(str2) > -1 ||
             channel.channel_name.indexOf(str3) > -1) {
             data.channel_id = channel.channel_id;
@@ -743,6 +768,13 @@ export default {
         return result;
       } else {
         return this.channelsData;
+      }
+    },
+    clearReminders () {
+      for (let channel of this.channelsData) {
+        for (let program of channel.programs) {
+          program.reminder = false;
+        }
       }
     }
   },
@@ -790,6 +822,9 @@ export default {
       if (this.remindersData.length > 0) {
         this.showRem = true;
       }
+    },
+    textSearch () {
+      this.debouncedSearch();
     }
   }
 };
