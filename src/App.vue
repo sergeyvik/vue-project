@@ -335,10 +335,6 @@ export default {
     },
     cancelButton () {
       this.showReg = false;
-      this.name = '';
-      this.login = '';
-      this.password = '';
-      this.email = '';
     },
     async enterButton () {
       const response = await api.post('/login', {
@@ -350,9 +346,6 @@ export default {
       if (response.data && response.data.token) {
         this.saveToken(response.data.token);
         this.showAut = false;
-        this.loginE = null;
-        this.passwordE = null;
-        this.checkEnter = null;
         await this.getUserData();
       } else {
         this.checkEnter = 'Опечатка в логине или пароле!';
@@ -407,10 +400,6 @@ export default {
         })
           .then((response) => {
             // handle success
-            this.name = '';
-            this.login = '';
-            this.password = '';
-            this.email = '';
             this.showAut = true;
           })
           .catch(function (error) {
@@ -825,6 +814,23 @@ export default {
     },
     textSearch () {
       this.debouncedSearch();
+    },
+    showAut () {
+      if (this.showAut === false) {
+        this.loginE = null;
+        this.passwordE = null;
+        this.checkEnter = null;
+        this.checkEnter = null;
+      }
+    },
+    showReg () {
+      if (this.showReg === false) {
+        this.name = null;
+        this.login = null;
+        this.password = null;
+        this.email = null;
+        this.checkAnswer = null;
+      }
     }
   }
 };
